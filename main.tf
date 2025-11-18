@@ -774,15 +774,55 @@ module "codex" {
 }
 
 # Goose AI Agent
-module "goose" {
-  count          = data.coder_workspace.me.start_count
-  source         = "registry.coder.com/coder/goose/coder"
-  version        = "3.0.0"
-  agent_id       = coder_agent.main.id
-  folder         = "/home/coder/projects"
-  install_goose  = true  # Explicitly enable goose installation
-  goose_provider = "anthropic"
-  goose_model    = "claude-3-5-sonnet-20241022"
+# TEMPORARILY DISABLED due to race condition with claude-code module
+# Both modules write to /tmp/install.sh simultaneously causing "Text file busy" error
+# Using manual installation script below instead
+# module "goose" {
+#   count          = data.coder_workspace.me.start_count
+#   source         = "registry.coder.com/coder/goose/coder"
+#   version        = "3.0.0"
+#   agent_id       = coder_agent.main.id
+#   folder         = "/home/coder/projects"
+#   install_goose  = true  # Explicitly enable goose installation
+#   goose_provider = "anthropic"
+#   goose_model    = "claude-3-5-sonnet-20241022"
+# }
+
+# Manual Goose Installation Script (workaround for module race condition)
+resource "coder_script" "install_goose" {
+  agent_id     = coder_agent.main.id
+  display_name = "Install Goose AI"
+  icon         = "/icon/goose.svg"
+  script = <<-EOT
+    #!/bin/bash
+    set -e
+
+    echo "📦 Installing Goose AI Agent..."
+
+    # Wait a bit to avoid race condition with claude-code module
+    sleep 5
+
+    # Install Goose
+    if ! command -v goose >/dev/null 2>&1; then
+      echo "Downloading and installing Goose..."
+      curl -fsSL https://github.com/block/goose/releases/download/stable/download_cli.sh | CONFIGURE=false bash
+      echo "✅ Goose installed successfully"
+    else
+      echo "✅ Goose already installed"
+    fi
+
+    # Verify installation
+    if command -v goose >/dev/null 2>&1; then
+      goose --version
+    else
+      echo "⚠️  Goose installation may have failed"
+      exit 1
+    fi
+  EOT
+  run_on_start = true
+  run_on_stop  = false
+  start_blocks_login = false
+  timeout = 300
 }
 
 # ========================================
