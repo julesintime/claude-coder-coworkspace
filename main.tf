@@ -230,7 +230,7 @@ data "coder_parameter" "enable_filebrowser" {
   display_name = "Enable File Browser"
   description  = "Enable web-based file browser for managing workspace files"
   type         = "bool"
-  default      = "false"
+  default      = "true"  # Changed to true - file browser is useful by default
   mutable      = true
   ephemeral    = true
 }
@@ -780,6 +780,7 @@ module "goose" {
   version        = "3.0.0"
   agent_id       = coder_agent.main.id
   folder         = "/home/coder/projects"
+  install_goose  = true  # Explicitly enable goose installation
   goose_provider = "anthropic"
   goose_model    = "claude-3-5-sonnet-20241022"
 }
