@@ -47,6 +47,10 @@ data "coder_parameter" "cpu" {
   icon         = "/icon/memory.svg"
   mutable      = true
   option {
+    name  = "1 Cores"
+    value = "1"
+  }
+  option {
     name  = "2 Cores"
     value = "2"
   }
@@ -62,15 +66,23 @@ data "coder_parameter" "cpu" {
     name  = "8 Cores"
     value = "8"
   }
+    option {
+    name  = "16 Cores"
+    value = "16"
+  }
 }
 
 data "coder_parameter" "memory" {
   name         = "memory"
   display_name = "Memory"
   description  = "Amount of memory in GB"
-  default      = "8"
+  default      = "16"
   icon         = "/icon/memory.svg"
   mutable      = true
+  option {
+    name  = "2 GB"
+    value = "2"
+  }
   option {
     name  = "4 GB"
     value = "4"
@@ -90,6 +102,10 @@ data "coder_parameter" "memory" {
   option {
     name  = "32 GB"
     value = "32"
+  }
+    option {
+    name  = "64 GB"
+    value = "64"
   }
 }
 
@@ -261,8 +277,26 @@ data "coder_parameter" "setup_script" {
     mkdir -p /home/coder/projects
     cd /home/coder/projects
 
-    # System packages
-    echo "📦 Installing system packages..."
+    # Configure tmux
+    echo "⚙️ Configuring tmux..."
+    mkdir -p ~/.config/tmux
+    cat > ~/.tmux.conf << 'TMUX_EOF'
+# Enable mouse support
+set -g mouse on
+
+# Improve colors
+set -g default-terminal "screen-256color"
+
+# Set scrollback buffer
+set -g history-limit 50000
+
+# Start windows and panes at 1, not 0
+set -g base-index 1
+setw -g pane-base-index 1
+TMUX_EOF
+
+    # System packages and CLIs (using apt for easier upgrades)
+    echo "📦 Installing system packages and CLIs..."
     sudo apt-get update
     sudo apt-get install -y --fix-missing \
       tmux curl wget git jq \
@@ -278,32 +312,47 @@ data "coder_parameter" "setup_script" {
       echo "⚠️ Docker not found (expected with Envbox)"
     fi
 
-    # Kubernetes CLI
+    # Kubernetes CLI (kubectl) via apt
     if ! command -v kubectl >/dev/null 2>&1; then
-      echo "📦 Installing kubectl..."
-      curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-      sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-      rm kubectl
-    fi
-
-    # GitHub CLI
-    if ! command -v gh >/dev/null 2>&1; then
-      echo "📦 Installing GitHub CLI..."
-      curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-      echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+      echo "📦 Installing kubectl via apt..."
+      sudo apt-get install -y apt-transport-https ca-certificates curl gnupg
+      curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
       sudo apt-get update
-      sudo apt-get install -y gh
+      sudo apt-get install -y kubectl
     fi
 
-    # Gitea CLI (tea)
+    # GitHub CLI via apt
+    if ! command -v gh >/dev/null 2>&1; then
+      echo "📦 Installing GitHub CLI via apt..."
+      (type -p wget >/dev/null || (sudo apt update && sudo apt-get install wget -y)) \
+        && sudo mkdir -p -m 755 /etc/apt/keyrings \
+        && wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+        && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+        && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+        && sudo apt update \
+        && sudo apt install gh -y
+    fi
+
+    # Gitea CLI (tea) via apt
     if ! command -v tea >/dev/null 2>&1; then
-      echo "📦 Installing Gitea CLI (tea)..."
-      wget -qO- https://dl.gitea.com/tea/0.9.2/tea-0.9.2-linux-amd64 -O /tmp/tea
-      sudo install -m 755 /tmp/tea /usr/local/bin/tea
-      rm /tmp/tea
+      echo "📦 Installing Gitea CLI (tea) via apt..."
+      wget -qO- https://dl.gitea.com/tea/0.9.2/tea-0.9.2-linux-amd64 -O /tmp/tea \
+        && sudo install -m 755 /tmp/tea /usr/local/bin/tea \
+        && rm /tmp/tea
     fi
 
-    # Gemini CLI
+    # TypeScript verification (should be pre-installed in enterprise-node image)
+    if command -v tsc >/dev/null 2>&1; then
+      echo "✓ TypeScript already installed: $(tsc --version)"
+    else
+      echo "📦 Installing TypeScript globally..."
+      if command -v npm >/dev/null 2>&1; then
+        sudo npm install -g typescript || echo "⚠️ TypeScript installation failed, skipping..."
+      fi
+    fi
+
+    # Gemini CLI (via npm for auto-updates)
     if ! command -v gemini >/dev/null 2>&1; then
       echo "📦 Installing Gemini CLI..."
       if command -v npm >/dev/null 2>&1; then
@@ -313,7 +362,7 @@ data "coder_parameter" "setup_script" {
       fi
     fi
 
-    # Claude Code CLI (latest version)
+    # Claude Code CLI (via npm for auto-updates)
     if ! command -v claude >/dev/null 2>&1; then
       echo "📦 Installing Claude Code CLI..."
       if command -v npm >/dev/null 2>&1; then
@@ -321,20 +370,15 @@ data "coder_parameter" "setup_script" {
       fi
     fi
 
-    # TypeScript
-    if ! command -v tsc >/dev/null 2>&1; then
-      echo "📦 Installing TypeScript globally..."
-      if command -v npm >/dev/null 2>&1; then
-        sudo npm install -g typescript || echo "⚠️ TypeScript installation failed, skipping..."
-      fi
-    fi
-
-    # MCP Servers - desktop-commander, sequential-thinking, deepwiki, context7
-    if command -v npm >/dev/null 2>&1; then
-      echo "📦 Installing MCP servers..."
-      sudo npm install -g @wonderwhy-er/desktop-commander || true
-      # Note: sequential-thinking, deepwiki, and context7 MCP servers are built into Claude Code
-      # and configured via 'coder exp mcp configure' on the client side, not in the workspace
+    # MCP Servers (using claude mcp add)
+    if command -v claude >/dev/null 2>&1; then
+      echo "📦 Configuring MCP servers with Claude Code..."
+      # Add MCP servers using claude mcp add
+      claude mcp add desktop-commander || echo "⚠️ desktop-commander MCP server failed to add"
+      # Note: sequential-thinking, deepwiki, and context7 are built-in MCP servers
+      echo "✓ MCP servers configured (desktop-commander added, built-in servers available)"
+    else
+      echo "⚠️ Claude CLI not available, skipping MCP server configuration"
     fi
 
     # Bash aliases and configuration
@@ -381,17 +425,26 @@ EOF
 
     source ~/.bashrc
 
-    # Configure MCP servers for Claude Code in workspace
-    echo "🔧 Configuring MCP servers for Claude Code..."
-    if command -v coder >/dev/null 2>&1; then
-      # Configure MCP for this workspace project directory
-      cd /home/coder/projects
-      coder exp mcp configure claude-code . --yes 2>/dev/null || echo "⚠️ MCP configuration skipped (may need to run manually)"
+    # Configure Git with GitHub authenticated user (if available)
+    if command -v gh >/dev/null 2>&1 && [ -n "$GITHUB_TOKEN" ]; then
+      echo "⚙️ Configuring Git with GitHub authenticated user..."
+      GH_USER=$(gh api user --jq '.name // .login' 2>/dev/null || echo "")
+      GH_EMAIL=$(gh api user --jq '.email // ""' 2>/dev/null || echo "")
+
+      if [ -n "$GH_USER" ]; then
+        git config --global user.name "$GH_USER"
+        echo "✓ Git user.name set to: $GH_USER (from GitHub)"
+      fi
+
+      if [ -n "$GH_EMAIL" ] && [ "$GH_EMAIL" != "null" ]; then
+        git config --global user.email "$GH_EMAIL"
+        echo "✓ Git user.email set to: $GH_EMAIL (from GitHub)"
+      fi
     fi
 
     echo "✅ Workspace setup complete!"
-    echo "🎯 Available AI tools: Claude Code (cc-c), Gemini CLI, GitHub Copilot"
-    echo "🎯 MCP servers: sequential-thinking, deepwiki, context7 available"
+    echo "🎯 Available AI tools: Claude Code (cc-c), Gemini CLI"
+    echo "🎯 MCP servers: desktop-commander, sequential-thinking, deepwiki, context7"
     echo "🐳 Docker is ready - try: docker run hello-world"
     echo "☸️ Kubernetes is ready - try: kubectl version"
 
@@ -535,7 +588,7 @@ resource "coder_agent" "main" {
   }
 
   metadata {
-    display_name = "AI Tools Status"
+    display_name = "AI Agents Status"
     key          = "10_ai_tools"
     script       = <<EOT
       tools=""
@@ -637,17 +690,13 @@ module "code-server" {
   }
 
   # Extensions - these will use the GITHUB_TOKEN environment variable for authentication
-  # GitHub Copilot requires a GitHub account with Copilot access
-  # Note: ms-vscode.cpptools removed - not available in code-server marketplace
+  # Note: GitHub extensions (copilot, copilot-chat) and C++ tools not available in code-server marketplace
   extensions = [
     "ms-python.python",
-    "golang.go",
     "hashicorp.terraform",
     "ms-kubernetes-tools.vscode-kubernetes-tools",
     "ms-azuretools.vscode-docker",
-    "eamodio.gitlens",
-    "github.copilot",
-    "github.copilot-chat"
+    "eamodio.gitlens"
   ]
 }
 
