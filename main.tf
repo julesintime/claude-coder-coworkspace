@@ -638,9 +638,9 @@ module "code-server" {
 
   # Extensions - these will use the GITHUB_TOKEN environment variable for authentication
   # GitHub Copilot requires a GitHub account with Copilot access
+  # Note: ms-vscode.cpptools removed - not available in code-server marketplace
   extensions = [
     "ms-python.python",
-    "ms-vscode.cpptools",
     "golang.go",
     "hashicorp.terraform",
     "ms-kubernetes-tools.vscode-kubernetes-tools",
