@@ -188,7 +188,8 @@ data "coder_parameter" "system_prompt" {
   type         = "string"
   form_type    = "textarea"
   description  = "System prompt for AI agents with generalized instructions"
-  mutable      = false
+  mutable      = true  # Must be mutable for ephemeral
+  ephemeral    = true
   default      = <<-EOT
     -- Framing --
     You are a helpful AI assistant in a unified DevOps development environment. You are running inside a Coder Workspace with full Docker-in-Docker support (Envbox) and multiple AI agents available. You provide status updates via Coder MCP.
