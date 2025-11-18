@@ -922,7 +922,10 @@ resource "coder_script" "configure_mcp_servers" {
   EOT
   run_on_start = true
   run_on_stop  = false
-  start_blocks_login = false
+  # Ensure the Claude Code module is installed before configuring MCP servers
+  depends_on = [module.claude-code]
+  # This config is important for Claude agents; block login until configured
+  start_blocks_login = true
   timeout = 300
 }
 
@@ -985,6 +988,9 @@ resource "coder_script" "claude_code_ui" {
   EOT
   run_on_start = true
   run_on_stop  = false
+  # Wait for Claude Code module to be available before starting the UI
+  depends_on = [module.claude-code]
+  # UI is non-blocking for login (doesn't need to block user access)
   start_blocks_login = false
   timeout = 300
 }
@@ -1028,6 +1034,9 @@ resource "coder_script" "vibe_kanban" {
   EOT
   run_on_start = true
   run_on_stop  = false
+  # Start after Claude Code module is available (uses PM2/npm)
+  depends_on = [module.claude-code]
+  # Non-blocking for login; kanban is optional UI
   start_blocks_login = false
   timeout = 300
 }
@@ -1094,7 +1103,9 @@ resource "coder_script" "install_goose" {
   EOT
   run_on_start = true
   run_on_stop  = false
-  start_blocks_login = false
+  # Ensure the agent is ready before installing Goose; block login while installing
+  depends_on = [coder_agent.main]
+  start_blocks_login = true
   timeout = 300
 }
 
