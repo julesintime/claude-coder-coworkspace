@@ -74,7 +74,8 @@ data "coder_parameter" "home_disk_size" {
   default      = "50"
   type         = "number"
   icon         = "/emojis/1f4be.png"
-  mutable      = false
+  mutable      = true  # Changed to allow ephemeral
+  ephemeral    = true
   validation {
     min = 10
     max = 500
@@ -87,7 +88,8 @@ data "coder_parameter" "container_image" {
   type         = "string"
   description  = "Docker image to use for the workspace (runs inside Envbox)"
   default      = "codercom/enterprise-node:ubuntu"
-  mutable      = false
+  mutable      = true  # Changed to allow ephemeral
+  ephemeral    = true
 }
 
 data "coder_parameter" "preview_port" {
@@ -96,7 +98,8 @@ data "coder_parameter" "preview_port" {
   description  = "Port for application preview in Coder Tasks"
   type         = "number"
   default      = "3000"
-  mutable      = false
+  mutable      = true  # Changed to allow ephemeral
+  ephemeral    = true
 }
 
 # ========================================
