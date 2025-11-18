@@ -178,6 +178,66 @@ data "coder_parameter" "gitea_token" {
   ephemeral    = true
 }
 
+data "coder_parameter" "openai_api_key" {
+  name         = "openai_api_key"
+  display_name = "OpenAI API Key (Optional)"
+  description  = "API key for OpenAI Codex. Generate at: https://platform.openai.com/api-keys"
+  type         = "string"
+  default      = ""
+  mutable      = true
+  ephemeral    = true
+}
+
+data "coder_parameter" "dotfiles_repo_url" {
+  name         = "dotfiles_repo_url"
+  display_name = "Dotfiles Repository URL (Optional)"
+  description  = "Git repository URL for your dotfiles (e.g., https://github.com/username/dotfiles)"
+  type         = "string"
+  default      = ""
+  mutable      = true
+  ephemeral    = true
+}
+
+data "coder_parameter" "git_clone_repo_url" {
+  name         = "git_clone_repo_url"
+  display_name = "Git Clone Repository URL (Optional)"
+  description  = "Git repository to automatically clone into workspace"
+  type         = "string"
+  default      = ""
+  mutable      = true
+  ephemeral    = true
+}
+
+data "coder_parameter" "git_clone_path" {
+  name         = "git_clone_path"
+  display_name = "Git Clone Path"
+  description  = "Directory path where repository will be cloned"
+  type         = "string"
+  default      = "/home/coder/projects/repo"
+  mutable      = true
+  ephemeral    = true
+}
+
+data "coder_parameter" "enable_filebrowser" {
+  name         = "enable_filebrowser"
+  display_name = "Enable File Browser"
+  description  = "Enable web-based file browser for managing workspace files"
+  type         = "bool"
+  default      = "false"
+  mutable      = true
+  ephemeral    = true
+}
+
+data "coder_parameter" "enable_kasmvnc" {
+  name         = "enable_kasmvnc"
+  display_name = "Enable KasmVNC Desktop"
+  description  = "Enable web-based Linux desktop environment (resource intensive)"
+  type         = "bool"
+  default      = "false"
+  mutable      = true
+  ephemeral    = true
+}
+
 # ========================================
 # ADVANCED PARAMETERS
 # ========================================
@@ -250,23 +310,23 @@ data "coder_parameter" "setup_script" {
     mkdir -p /home/coder/projects
     cd /home/coder/projects
 
-    # Configure tmux
-    echo "⚙️ Configuring tmux..."
-    mkdir -p ~/.config/tmux
-    cat > ~/.tmux.conf << 'TMUX_EOF'
-# Enable mouse support
-set -g mouse on
-
-# Improve colors
-set -g default-terminal "screen-256color"
-
-# Set scrollback buffer
-set -g history-limit 50000
-
-# Start windows and panes at 1, not 0
-set -g base-index 1
-setw -g pane-base-index 1
-TMUX_EOF
+    # Configure tmux - DISABLED (replaced by tmux module)
+    # echo "⚙️ Configuring tmux..."
+    # mkdir -p ~/.config/tmux
+    # cat > ~/.tmux.conf << 'TMUX_EOF'
+# # Enable mouse support
+# set -g mouse on
+#
+# # Improve colors
+# set -g default-terminal "screen-256color"
+#
+# # Set scrollback buffer
+# set -g history-limit 50000
+#
+# # Start windows and panes at 1, not 0
+# set -g base-index 1
+# setw -g pane-base-index 1
+# TMUX_EOF
 
     # System packages and CLIs (using apt for easier upgrades)
     echo "📦 Installing system packages and CLIs..."
@@ -325,15 +385,15 @@ TMUX_EOF
       fi
     fi
 
-    # Gemini CLI (via npm for auto-updates)
-    if ! command -v gemini >/dev/null 2>&1; then
-      echo "📦 Installing Gemini CLI..."
-      if command -v npm >/dev/null 2>&1; then
-        sudo npm install -g @google/generative-ai-cli || echo "⚠️ Gemini CLI installation failed, skipping..."
-      else
-        echo "⚠️ npm not found, skipping Gemini CLI installation"
-      fi
-    fi
+    # Gemini CLI - DISABLED (replaced by gemini module)
+    # if ! command -v gemini >/dev/null 2>&1; then
+    #   echo "📦 Installing Gemini CLI..."
+    #   if command -v npm >/dev/null 2>&1; then
+    #     sudo npm install -g @google/generative-ai-cli || echo "⚠️ Gemini CLI installation failed, skipping..."
+    #   else
+    #     echo "⚠️ npm not found, skipping Gemini CLI installation"
+    #   fi
+    # fi
 
     # Claude Code CLI (via npm for auto-updates)
     if ! command -v claude >/dev/null 2>&1; then
@@ -687,6 +747,126 @@ resource "coder_script" "configure_mcp_servers" {
   run_on_stop  = false
   start_blocks_login = false
   timeout = 300
+}
+
+# ========================================
+# AI TOOL MODULES
+# ========================================
+
+# Gemini CLI (replaces npm installation)
+module "gemini" {
+  count    = data.coder_workspace.me.start_count
+  source   = "registry.coder.com/coder-labs/gemini/coder"
+  version  = "1.0.0"
+  agent_id = coder_agent.main.id
+}
+
+# GitHub Copilot CLI
+module "copilot" {
+  count    = data.coder_workspace.me.start_count
+  source   = "registry.coder.com/coder-labs/copilot/coder"
+  version  = "1.0.0"
+  agent_id = coder_agent.main.id
+}
+
+# OpenAI Codex CLI
+module "codex" {
+  count          = data.coder_parameter.openai_api_key.value != "" ? data.coder_workspace.me.start_count : 0
+  source         = "registry.coder.com/coder-labs/codex/coder"
+  version        = "2.1.0"
+  agent_id       = coder_agent.main.id
+  openai_api_key = data.coder_parameter.openai_api_key.value
+  folder         = "/home/coder/projects"
+}
+
+# Goose AI Agent
+module "goose" {
+  count    = data.coder_workspace.me.start_count
+  source   = "registry.coder.com/coder/goose/coder"
+  version  = "1.0.0"
+  agent_id = coder_agent.main.id
+  folder   = "/home/coder/projects"
+}
+
+# Cursor CLI
+module "cursor-cli" {
+  count    = data.coder_workspace.me.start_count
+  source   = "registry.coder.com/coder-labs/cursor-cli/coder"
+  version  = "1.0.19"
+  agent_id = coder_agent.main.id
+}
+
+# ========================================
+# CONFIGURATION MODULES
+# ========================================
+
+# Tmux with plugins (replaces bash config)
+module "tmux" {
+  count    = data.coder_workspace.me.start_count
+  source   = "registry.coder.com/anomaly/tmux/coder"
+  version  = "1.0.0"
+  agent_id = coder_agent.main.id
+}
+
+# ========================================
+# DEVELOPER TOOL MODULES
+# ========================================
+
+# Dotfiles (conditional on repo URL)
+module "dotfiles" {
+  count                = data.coder_parameter.dotfiles_repo_url.value != "" ? data.coder_workspace.me.start_count : 0
+  source               = "registry.coder.com/coder/dotfiles/coder"
+  version              = "1.2.1"
+  agent_id             = coder_agent.main.id
+  default_dotfiles_uri = data.coder_parameter.dotfiles_repo_url.value
+}
+
+# Git Clone (conditional on repo URL)
+module "git-clone" {
+  count    = data.coder_parameter.git_clone_repo_url.value != "" ? data.coder_workspace.me.start_count : 0
+  source   = "registry.coder.com/coder/git-clone/coder"
+  version  = "1.0.12"
+  agent_id = coder_agent.main.id
+  url      = data.coder_parameter.git_clone_repo_url.value
+  base_dir = "/home/coder"
+}
+
+# GitHub SSH Key Upload (conditional on GitHub auth)
+module "github-upload-public-key" {
+  count    = data.coder_external_auth.github.access_token != "" ? data.coder_workspace.me.start_count : 0
+  source   = "registry.coder.com/coder/github-upload-public-key/coder"
+  version  = "1.0.0"
+  agent_id = coder_agent.main.id
+}
+
+# ========================================
+# OPTIONAL UI/TOOL MODULES
+# ========================================
+
+# File Browser (conditional toggle)
+module "filebrowser" {
+  count    = data.coder_parameter.enable_filebrowser.value ? data.coder_workspace.me.start_count : 0
+  source   = "registry.coder.com/coder/filebrowser/coder"
+  version  = "1.0.8"
+  agent_id = coder_agent.main.id
+  folder   = "/home/coder"
+}
+
+# KasmVNC Desktop (conditional toggle)
+module "kasmvnc" {
+  count                = data.coder_parameter.enable_kasmvnc.value ? data.coder_workspace.me.start_count : 0
+  source               = "registry.coder.com/coder/kasmvnc/coder"
+  version              = "1.0.0"
+  agent_id             = coder_agent.main.id
+  desktop_environment  = "xfce"
+}
+
+# Archive Tool
+module "archive" {
+  count    = data.coder_workspace.me.start_count
+  source   = "registry.coder.com/coder-labs/archive/coder"
+  version  = "1.0.0"
+  agent_id = coder_agent.main.id
 }
 
 # ========================================
