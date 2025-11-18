@@ -167,6 +167,38 @@ Via Web UI:
 | `gitea_url` | Optional | Gitea instance URL |
 | `gitea_token` | Optional | Gitea access token |
 
+### GitHub External Authentication (Recommended)
+
+For better security and automatic token refresh, configure GitHub External Auth on your Coder server instead of using a manual PAT:
+
+**1. Create GitHub OAuth App:**
+   - Go to GitHub Settings → Developer Settings → OAuth Apps
+   - Create new OAuth App with:
+     - Homepage URL: `https://your-coder-server.com`
+     - Callback URL: `https://your-coder-server.com/external-auth/primary-github/callback`
+
+**2. Configure Coder Server:**
+
+```bash
+# Add to your Coder server environment variables
+export CODER_EXTERNAL_AUTH_0_ID="primary-github"
+export CODER_EXTERNAL_AUTH_0_TYPE="github"
+export CODER_EXTERNAL_AUTH_0_CLIENT_ID="your_github_oauth_client_id"
+export CODER_EXTERNAL_AUTH_0_CLIENT_SECRET="your_github_oauth_secret"
+```
+
+**3. Authenticate on First Workspace Creation:**
+   - Click "Login with GitHub" when creating a workspace
+   - Tokens are auto-refreshed by Coder
+   - Works with GitHub Copilot extensions in code-server!
+
+**Benefits:**
+- ✅ Automatic token refresh (no expiration issues)
+- ✅ One-time authentication per user
+- ✅ Works with GitHub Copilot and other GitHub-authenticated extensions
+- ✅ Secure token storage in Coder's database
+- ✅ No need to manually manage PATs
+
 ### Advanced Configuration
 
 Edit `system_prompt` parameter to customize AI behavior:

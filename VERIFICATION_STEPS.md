@@ -124,13 +124,47 @@ workspace-info   # Workspace information
 - Verify extensions are installed
 - Check terminal access
 
-### 5. Authentication (if configured)
+### 5. GitHub External Authentication (Recommended)
+
+If your Coder server has GitHub External Auth configured:
+
+```bash
+# Check if GitHub token is available from external auth
+coder external-auth access-token primary-github
+
+# Verify token is in environment
+echo $GITHUB_TOKEN
+
+# Test GitHub CLI authentication
+gh auth status
+```
+
+**Note**: External auth is preferred over manual PAT because:
+- Auto-refreshes tokens (no expiration)
+- Works with GitHub Copilot extensions in code-server
+- Requires one-time OAuth login per user
+
+### 6. Authentication (if using manual tokens)
 ```bash
 # Run authentication setup
 bash ~/scripts/setup-ai-auth.sh
 
 # Check environment variables
 env | grep -E "CLAUDE|GEMINI|GITHUB|GITEA"
+```
+
+### 7. GitHub Copilot Extensions
+
+If you have GitHub Copilot access and external auth configured:
+
+```bash
+# Open code-server from Coder dashboard
+# Extensions should install automatically:
+# - github.copilot
+# - github.copilot-chat
+# - eamodio.gitlens
+
+# Copilot will use the GITHUB_TOKEN from external auth automatically
 ```
 
 ## 📊 Template Information
