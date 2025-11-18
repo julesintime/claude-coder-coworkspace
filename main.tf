@@ -591,30 +591,16 @@ module "claude-code" {
 # VS Code (code-server)
 module "code-server" {
   count   = data.coder_workspace.me.start_count
+  folder  = "/home/coder/projects"
   source  = "registry.coder.com/coder/code-server/coder"
   version = "~> 1.0"
 
   agent_id = coder_agent.main.id
-  folder   = "/home/coder/projects"
   order    = 1
 
   settings = {
     "workbench.colorTheme" : "Default Dark Modern"
-    "editor.formatOnSave" : true
-    "files.autoSave" : "afterDelay"
   }
-
-  extensions = [
-    "ms-python.python",
-    "ms-vscode.cpptools",
-    "golang.go",
-    "hashicorp.terraform",
-    "ms-kubernetes-tools.vscode-kubernetes-tools",
-    "ms-azuretools.vscode-docker",
-    "eamodio.gitlens",
-    "github.copilot",
-    "github.copilot-chat"
-  ]
 }
 
 # Cursor IDE
