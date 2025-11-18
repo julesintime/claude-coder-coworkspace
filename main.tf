@@ -623,9 +623,9 @@ resource "coder_env" "gitea_token" {
 # ========================================
 
 # Claude Code module (latest version)
-# Note: Checking for 4.x version or using latest available
+# CHANGED: Always run, regardless of auth status - Claude Code works without auth
 module "claude-code" {
-  count   = local.has_claude_auth ? data.coder_workspace.me.start_count : 0
+  count   = data.coder_workspace.me.start_count  # ALWAYS install Claude Code
   source  = "registry.coder.com/coder/claude-code/coder"
   version = "~> 4.0" # Use latest 4.x version, fallback to 3.x if unavailable
 
@@ -636,11 +636,57 @@ module "claude-code" {
   system_prompt       = data.coder_parameter.system_prompt.value
   model               = "sonnet"
   permission_mode     = "plan"
-  post_install_script = data.coder_parameter.setup_script.value
+  post_install_script = ""  # Empty - we'll use a separate script for MCP setup
 
-  # Authentication
+  # Authentication (optional - Claude Code works without it)
   claude_api_key          = local.use_api_key ? data.coder_parameter.claude_api_key.value : ""
   claude_code_oauth_token = local.use_oauth_token ? data.coder_parameter.claude_oauth_token.value : ""
+}
+
+# MCP Server Configuration Script
+# Runs AFTER Claude Code module installs the CLI
+resource "coder_script" "configure_mcp_servers" {
+  agent_id     = coder_agent.main.id
+  display_name = "Configure MCP Servers"
+  icon         = "/icon/docker.svg"
+  script = <<-EOT
+    #!/bin/bash
+    set -e
+
+    echo "📦 Configuring MCP servers for Claude Code..."
+
+    # Wait for claude CLI to be available (installed by claude-code module)
+    for i in {1..30}; do
+      if command -v claude >/dev/null 2>&1; then
+        echo "✓ Claude CLI found"
+        break
+      fi
+      echo "Waiting for Claude CLI installation... ($i/30)"
+      sleep 2
+    done
+
+    if ! command -v claude >/dev/null 2>&1; then
+      echo "⚠️  Claude CLI not found after waiting, skipping MCP configuration"
+      exit 0
+    fi
+
+    # Configure MCP servers
+    echo "Adding context7 MCP server..."
+    claude mcp add --transport http context7 https://mcp.context7.com/mcp || echo "⚠️  context7 failed to add"
+
+    echo "Adding sequential-thinking MCP server..."
+    claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequential-thinking || echo "⚠️  sequential-thinking failed to add"
+
+    echo "Adding deepwiki MCP server..."
+    claude mcp add --transport http deepwiki https://mcp.deepwiki.com/mcp || echo "⚠️  deepwiki failed to add"
+
+    echo "✅ MCP servers configured!"
+    claude mcp list || echo "⚠️  Could not list MCP servers"
+  EOT
+  run_on_start = true
+  run_on_stop  = false
+  start_blocks_login = false
+  timeout = 300
 }
 
 # ========================================
