@@ -285,7 +285,8 @@ data "coder_parameter" "system_prompt" {
 
 data "coder_parameter" "ai_prompt" {
   type        = "string"
-  name        = "AI Prompt"
+  name        = "Workspace AI Prompt"
+  display_name = "AI Prompt"
   default     = ""
   description = "Initial prompt for Claude Code on workspace startup"
   mutable     = true
