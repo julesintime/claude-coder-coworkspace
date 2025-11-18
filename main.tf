@@ -753,23 +753,6 @@ resource "coder_script" "configure_mcp_servers" {
 # AI TOOL MODULES
 # ========================================
 
-# Gemini CLI (replaces npm installation)
-module "gemini" {
-  count    = data.coder_workspace.me.start_count
-  source   = "registry.coder.com/coder-labs/gemini/coder"
-  version  = "1.0.0"
-  agent_id = coder_agent.main.id
-}
-
-# GitHub Copilot CLI
-module "copilot" {
-  count    = data.coder_workspace.me.start_count
-  source   = "registry.coder.com/coder-labs/copilot/coder"
-  version  = "0.2.2"
-  agent_id = coder_agent.main.id
-  workdir  = "/home/coder/projects"
-}
-
 # OpenAI Codex CLI
 module "codex" {
   count          = data.coder_parameter.openai_api_key.value != "" ? data.coder_workspace.me.start_count : 0
@@ -789,15 +772,6 @@ module "goose" {
   folder         = "/home/coder/projects"
   goose_provider = "anthropic"
   goose_model    = "claude-3-5-sonnet-20241022"
-}
-
-# Cursor CLI
-module "cursor-cli" {
-  count    = data.coder_workspace.me.start_count
-  source   = "registry.coder.com/coder-labs/cursor-cli/coder"
-  version  = "0.2.1"
-  agent_id = coder_agent.main.id
-  folder   = "/home/coder/projects"
 }
 
 # ========================================
