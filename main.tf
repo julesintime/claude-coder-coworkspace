@@ -232,7 +232,7 @@ data "coder_parameter" "setup_script" {
   type         = "string"
   form_type    = "textarea"
   description  = "Bash script to run before starting the AI agent"
-  mutable      = false
+  mutable      = true  # Must be mutable for ephemeral to work
   ephemeral    = true
   default      = <<-EOT
     #!/bin/bash
