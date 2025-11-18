@@ -765,7 +765,7 @@ module "gemini" {
 module "copilot" {
   count    = data.coder_workspace.me.start_count
   source   = "registry.coder.com/coder-labs/copilot/coder"
-  version  = "1.0.0"
+  version  = "0.2.2"
   agent_id = coder_agent.main.id
 }
 
@@ -783,7 +783,7 @@ module "codex" {
 module "goose" {
   count    = data.coder_workspace.me.start_count
   source   = "registry.coder.com/coder/goose/coder"
-  version  = "1.0.0"
+  version  = "3.0.0"
   agent_id = coder_agent.main.id
   folder   = "/home/coder/projects"
 }
@@ -792,7 +792,7 @@ module "goose" {
 module "cursor-cli" {
   count    = data.coder_workspace.me.start_count
   source   = "registry.coder.com/coder-labs/cursor-cli/coder"
-  version  = "1.0.19"
+  version  = "0.2.1"
   agent_id = coder_agent.main.id
 }
 
@@ -835,7 +835,7 @@ module "git-clone" {
 module "github-upload-public-key" {
   count    = data.coder_external_auth.github.access_token != "" ? data.coder_workspace.me.start_count : 0
   source   = "registry.coder.com/coder/github-upload-public-key/coder"
-  version  = "1.0.0"
+  version  = "1.0.31"
   agent_id = coder_agent.main.id
 }
 
@@ -856,7 +856,7 @@ module "filebrowser" {
 module "kasmvnc" {
   count                = data.coder_parameter.enable_kasmvnc.value ? data.coder_workspace.me.start_count : 0
   source               = "registry.coder.com/coder/kasmvnc/coder"
-  version              = "1.0.0"
+  version              = "1.2.5"
   agent_id             = coder_agent.main.id
   desktop_environment  = "xfce"
 }
@@ -865,7 +865,7 @@ module "kasmvnc" {
 module "archive" {
   count    = data.coder_workspace.me.start_count
   source   = "registry.coder.com/coder-labs/archive/coder"
-  version  = "1.0.0"
+  version  = "0.0.1"
   agent_id = coder_agent.main.id
 }
 
