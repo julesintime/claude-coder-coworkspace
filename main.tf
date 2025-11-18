@@ -250,7 +250,7 @@ data "coder_parameter" "enable_claude_code_ui" {
   display_name = "Enable Claude Code UI"
   description  = "Enable web-based interface for Claude Code sessions (mobile/desktop access)"
   type         = "bool"
-  default      = "false"
+  default      = "true"
   mutable      = true
   ephemeral    = true
 }
@@ -260,7 +260,7 @@ data "coder_parameter" "enable_vibe_kanban" {
   display_name = "Enable Vibe Kanban"
   description  = "Enable Kanban board for AI agent orchestration and task management"
   type         = "bool"
-  default      = "false"
+  default      = "true"
   mutable      = true
   ephemeral    = true
 }
