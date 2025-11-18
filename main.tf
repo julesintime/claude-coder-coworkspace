@@ -960,7 +960,7 @@ resource "coder_script" "claude_code_ui" {
     # Install PM2 if not present
     if ! command -v pm2 >/dev/null 2>&1; then
       echo "📦 Installing PM2..."
-      npm install -g pm2 || { echo "❌ PM2 installation failed"; exit 1; }
+      sudo npm install -g pm2 || { echo "❌ PM2 installation failed"; exit 1; }
     fi
 
     # Install Claude Code UI globally
@@ -1004,7 +1004,7 @@ resource "coder_script" "vibe_kanban" {
     # Install PM2 if not present
     if ! command -v pm2 >/dev/null 2>&1; then
       echo "📦 Installing PM2..."
-      npm install -g pm2 || { echo "❌ PM2 installation failed"; exit 1; }
+      sudo npm install -g pm2 || { echo "❌ PM2 installation failed"; exit 1; }
     fi
 
     # Create data directory for persistence
