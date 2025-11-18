@@ -767,6 +767,7 @@ module "copilot" {
   source   = "registry.coder.com/coder-labs/copilot/coder"
   version  = "0.2.2"
   agent_id = coder_agent.main.id
+  workdir  = "/home/coder/projects"
 }
 
 # OpenAI Codex CLI
