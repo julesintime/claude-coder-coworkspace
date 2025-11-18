@@ -42,70 +42,28 @@ variable "namespace" {
 data "coder_parameter" "cpu" {
   name         = "cpu"
   display_name = "CPU Cores"
-  description  = "Number of CPU cores allocated to the workspace"
+  description  = "Number of CPU cores allocated to the workspace (1, 2, 4, 6, 8, or 16)"
   default      = "4"
+  type         = "number"
   icon         = "/icon/memory.svg"
   mutable      = true
-  option {
-    name  = "1 Cores"
-    value = "1"
-  }
-  option {
-    name  = "2 Cores"
-    value = "2"
-  }
-  option {
-    name  = "4 Cores"
-    value = "4"
-  }
-  option {
-    name  = "6 Cores"
-    value = "6"
-  }
-  option {
-    name  = "8 Cores"
-    value = "8"
-  }
-    option {
-    name  = "16 Cores"
-    value = "16"
+  validation {
+    min = 1
+    max = 16
   }
 }
 
 data "coder_parameter" "memory" {
   name         = "memory"
   display_name = "Memory"
-  description  = "Amount of memory in GB"
+  description  = "Amount of memory in GB (2-64)"
   default      = "16"
+  type         = "number"
   icon         = "/icon/memory.svg"
   mutable      = true
-  option {
-    name  = "2 GB"
-    value = "2"
-  }
-  option {
-    name  = "4 GB"
-    value = "4"
-  }
-  option {
-    name  = "8 GB"
-    value = "8"
-  }
-  option {
-    name  = "12 GB"
-    value = "12"
-  }
-  option {
-    name  = "16 GB"
-    value = "16"
-  }
-  option {
-    name  = "32 GB"
-    value = "32"
-  }
-    option {
-    name  = "64 GB"
-    value = "64"
+  validation {
+    min = 2
+    max = 64
   }
 }
 
