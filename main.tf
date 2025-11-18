@@ -245,6 +245,46 @@ data "coder_parameter" "enable_kasmvnc" {
   ephemeral    = true
 }
 
+data "coder_parameter" "enable_claude_code_ui" {
+  name         = "enable_claude_code_ui"
+  display_name = "Enable Claude Code UI"
+  description  = "Enable web-based interface for Claude Code sessions (mobile/desktop access)"
+  type         = "bool"
+  default      = "false"
+  mutable      = true
+  ephemeral    = true
+}
+
+data "coder_parameter" "enable_vibe_kanban" {
+  name         = "enable_vibe_kanban"
+  display_name = "Enable Vibe Kanban"
+  description  = "Enable Kanban board for AI agent orchestration and task management"
+  type         = "bool"
+  default      = "false"
+  mutable      = true
+  ephemeral    = true
+}
+
+data "coder_parameter" "claude_code_ui_port" {
+  name         = "claude_code_ui_port"
+  display_name = "Claude Code UI Port"
+  description  = "Port for Claude Code UI web interface"
+  type         = "number"
+  default      = "38401"
+  mutable      = true
+  ephemeral    = true
+}
+
+data "coder_parameter" "vibe_kanban_port" {
+  name         = "vibe_kanban_port"
+  display_name = "Vibe Kanban Port"
+  description  = "Port for Vibe Kanban interface"
+  type         = "number"
+  default      = "38402"
+  mutable      = true
+  ephemeral    = true
+}
+
 # ========================================
 # ADVANCED PARAMETERS
 # ========================================
@@ -410,6 +450,14 @@ data "coder_parameter" "setup_script" {
       fi
     fi
 
+    # PM2 Process Manager (for Claude Code UI and Vibe Kanban)
+    if ! command -v pm2 >/dev/null 2>&1; then
+      echo "📦 Installing PM2 process manager..."
+      if command -v npm >/dev/null 2>&1; then
+        sudo npm install -g pm2 || echo "⚠️ PM2 installation failed, skipping..."
+      fi
+    fi
+
     # MCP Servers (using claude mcp add)
     if command -v claude >/dev/null 2>&1; then
       echo "📦 Configuring MCP servers with Claude Code..."
@@ -458,6 +506,13 @@ alias gl='git log --oneline'
 # GitHub CLI
 alias ghpr='gh pr'
 alias ghissue='gh issue'
+
+# AI UI Tools
+alias claude-code-ui-logs='pm2 logs claude-code-ui'
+alias vibe-logs='pm2 logs vibe-kanban'
+alias ai-ui-restart='pm2 restart claude-code-ui vibe-kanban'
+alias ai-ui-status='pm2 list'
+alias update-ai-uis='npm update -g @siteboon/claude-code-ui vibe-kanban && pm2 restart claude-code-ui vibe-kanban'
 
 # Workspace info
 alias workspace-info='echo "🚀 Unified DevOps Workspace"; echo "Docker: $(docker --version 2>/dev/null || echo Not available)"; echo "Kubectl: $(kubectl version --client --short 2>/dev/null || echo Not available)"; echo "Claude: $(claude --version 2>/dev/null || echo Not installed)"; echo "Gemini: $(gemini --version 2>/dev/null || echo Not installed)"'
@@ -760,6 +815,112 @@ resource "coder_script" "configure_mcp_servers" {
 }
 
 # ========================================
+# AI UI TOOLS
+# ========================================
+
+# Claude Code UI - Web interface for Claude Code sessions
+resource "coder_script" "claude_code_ui" {
+  count        = data.coder_parameter.enable_claude_code_ui.value ? 1 : 0
+  agent_id     = coder_agent.main.id
+  display_name = "Claude Code UI"
+  icon         = "/icon/code.svg"
+  script = <<-EOT
+    #!/bin/bash
+    set -e
+
+    echo "🎨 Setting up Claude Code UI..."
+
+    # Wait for Claude CLI (installed by claude-code module)
+    for i in {1..30}; do
+      if command -v claude >/dev/null 2>&1; then
+        echo "✓ Claude CLI found"
+        break
+      fi
+      echo "Waiting for Claude CLI installation... ($i/30)"
+      sleep 2
+    done
+
+    if ! command -v claude >/dev/null 2>&1; then
+      echo "⚠️ Claude CLI not found, skipping Claude Code UI setup"
+      exit 0
+    fi
+
+    # Install PM2 if not present
+    if ! command -v pm2 >/dev/null 2>&1; then
+      echo "📦 Installing PM2..."
+      npm install -g pm2 || { echo "❌ PM2 installation failed"; exit 1; }
+    fi
+
+    # Install Claude Code UI globally
+    echo "📦 Installing Claude Code UI..."
+    npm install -g @siteboon/claude-code-ui || { echo "❌ Claude Code UI installation failed"; exit 1; }
+
+    # Create data directory for persistence
+    mkdir -p /home/coder/.claude-code-ui
+
+    # Stop existing instance if running
+    pm2 delete claude-code-ui 2>/dev/null || true
+
+    # Start with PM2
+    echo "🚀 Starting Claude Code UI on port ${data.coder_parameter.claude_code_ui_port.value}..."
+    PORT=${data.coder_parameter.claude_code_ui_port.value} \
+    DATABASE_PATH=/home/coder/.claude-code-ui/database.json \
+    pm2 start claude-code-ui --name claude-code-ui
+
+    pm2 save
+    echo "✅ Claude Code UI started successfully!"
+    pm2 list
+  EOT
+  run_on_start = true
+  run_on_stop  = false
+  start_blocks_login = false
+  timeout = 300
+}
+
+# Vibe Kanban - AI agent orchestration board
+resource "coder_script" "vibe_kanban" {
+  count        = data.coder_parameter.enable_vibe_kanban.value ? 1 : 0
+  agent_id     = coder_agent.main.id
+  display_name = "Vibe Kanban"
+  icon         = "/icon/workspace.svg"
+  script = <<-EOT
+    #!/bin/bash
+    set -e
+
+    echo "📋 Setting up Vibe Kanban..."
+
+    # Install PM2 if not present
+    if ! command -v pm2 >/dev/null 2>&1; then
+      echo "📦 Installing PM2..."
+      npm install -g pm2 || { echo "❌ PM2 installation failed"; exit 1; }
+    fi
+
+    # Create data directory for persistence
+    mkdir -p /home/coder/.vibe-kanban
+
+    # Stop existing instance if running
+    pm2 delete vibe-kanban 2>/dev/null || true
+
+    # Start Vibe Kanban with PM2
+    # Using npx which should include pre-built binaries
+    echo "🚀 Starting Vibe Kanban on port ${data.coder_parameter.vibe_kanban_port.value}..."
+    cd /home/coder/.vibe-kanban
+    FRONTEND_PORT=${data.coder_parameter.vibe_kanban_port.value} \
+    BACKEND_PORT=$((${data.coder_parameter.vibe_kanban_port.value} + 1)) \
+    HOST=127.0.0.1 \
+    pm2 start --name vibe-kanban -- npx vibe-kanban
+
+    pm2 save
+    echo "✅ Vibe Kanban started successfully!"
+    pm2 list
+  EOT
+  run_on_start = true
+  run_on_stop  = false
+  start_blocks_login = false
+  timeout = 300
+}
+
+# ========================================
 # AI TOOL MODULES
 # ========================================
 
@@ -977,6 +1138,46 @@ resource "coder_app" "preview" {
     url       = "http://localhost:${data.coder_parameter.preview_port.value}/"
     interval  = 5
     threshold = 15
+  }
+}
+
+# Claude Code UI - Web interface for managing Claude Code sessions
+resource "coder_app" "claude_code_ui" {
+  count        = data.coder_parameter.enable_claude_code_ui.value ? 1 : 0
+  agent_id     = coder_agent.main.id
+  slug         = "claude-code-ui"
+  display_name = "Claude Code UI"
+  icon         = "/icon/code.svg"
+  url          = "http://localhost:${data.coder_parameter.claude_code_ui_port.value}"
+  share        = "owner"  # Only workspace owner can access
+  subdomain    = true
+  open_in      = "tab"
+  order        = 1
+
+  healthcheck {
+    url       = "http://localhost:${data.coder_parameter.claude_code_ui_port.value}/"
+    interval  = 5
+    threshold = 20
+  }
+}
+
+# Vibe Kanban - AI agent orchestration board
+resource "coder_app" "vibe_kanban" {
+  count        = data.coder_parameter.enable_vibe_kanban.value ? 1 : 0
+  agent_id     = coder_agent.main.id
+  slug         = "vibe-kanban"
+  display_name = "Vibe Kanban"
+  icon         = "/icon/workspace.svg"
+  url          = "http://localhost:${data.coder_parameter.vibe_kanban_port.value}"
+  share        = "owner"  # Only workspace owner can access
+  subdomain    = true
+  open_in      = "tab"
+  order        = 2
+
+  healthcheck {
+    url       = "http://localhost:${data.coder_parameter.vibe_kanban_port.value}/"
+    interval  = 5
+    threshold = 20
   }
 }
 
