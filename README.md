@@ -488,7 +488,6 @@ The following MCP servers are available and pre-configured with Coder:
 - **sequential-thinking** - Advanced reasoning with chain-of-thought
 - **deepwiki** - GitHub repository documentation access
 - **context7** - Library documentation and code examples
-- **desktop-commander** - Long-running process management
 
 #### Configure MCP Servers on Your Local Machine
 
@@ -509,8 +508,6 @@ claude "use sequential-thinking to solve this complex problem"
 claude "search deepwiki for React documentation"
 claude "get context7 docs for Next.js routing"
 ```
-
-**Note**: The workspace template includes `desktop-commander` for managing long-running processes (dev servers, watchers, etc.).
 
 ### Install Additional Tools
 

@@ -373,10 +373,11 @@ TMUX_EOF
     # MCP Servers (using claude mcp add)
     if command -v claude >/dev/null 2>&1; then
       echo "📦 Configuring MCP servers with Claude Code..."
-      # Add MCP servers using claude mcp add
-      claude mcp add desktop-commander || echo "⚠️ desktop-commander MCP server failed to add"
-      # Note: sequential-thinking, deepwiki, and context7 are built-in MCP servers
-      echo "✓ MCP servers configured (desktop-commander added, built-in servers available)"
+      # Add MCP servers using claude mcp add with appropriate transports
+      claude mcp add --transport http context7 https://mcp.context7.com/mcp || echo "⚠️ context7 MCP server failed to add"
+      claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequential-thinking || echo "⚠️ sequential-thinking MCP server failed to add"
+      claude mcp add --transport http deepwiki https://mcp.deepwiki.com/mcp || echo "⚠️ deepwiki MCP server failed to add"
+      echo "✓ MCP servers configured (context7, sequential-thinking, deepwiki)"
     else
       echo "⚠️ Claude CLI not available, skipping MCP server configuration"
     fi
@@ -444,7 +445,7 @@ EOF
 
     echo "✅ Workspace setup complete!"
     echo "🎯 Available AI tools: Claude Code (cc-c), Gemini CLI"
-    echo "🎯 MCP servers: desktop-commander, sequential-thinking, deepwiki, context7"
+    echo "🎯 MCP servers: context7, sequential-thinking, deepwiki"
     echo "🐳 Docker is ready - try: docker run hello-world"
     echo "☸️ Kubernetes is ready - try: kubectl version"
 

@@ -45,10 +45,10 @@ fi
 
 **Updated README** with:
 - How to configure MCP servers with `coder exp mcp configure`
-- Available MCP servers: sequential-thinking, deepwiki, context7, desktop-commander
+- Available MCP servers: sequential-thinking, deepwiki, context7
 - Usage examples for Claude Code CLI
 
-**Note**: The workspace includes desktop-commander for process management
+**Note**: The workspace includes three core MCP servers for enhanced AI capabilities
 
 ### 4. GitHub External Authentication Prepared (Manual Step Required) ⚠️
 **Status**: Ready but commented out - needs manual verification
