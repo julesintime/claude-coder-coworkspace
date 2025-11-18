@@ -233,6 +233,7 @@ data "coder_parameter" "setup_script" {
   form_type    = "textarea"
   description  = "Bash script to run before starting the AI agent"
   mutable      = false
+  ephemeral    = true
   default      = <<-EOT
     #!/bin/bash
     set -e
@@ -683,9 +684,11 @@ module "windsurf" {
   agent_id = coder_agent.main.id
 }
 
-# JetBrains IDEs
+# JetBrains IDEs - DISABLED for automated workspace creation
+# The JetBrains module creates interactive parameter prompts that block automation
+# Re-enable by changing count to data.coder_workspace.me.start_count if needed
 module "jetbrains" {
-  count      = data.coder_workspace.me.start_count
+  count      = 0  # Disabled to allow CLI automation
   source     = "registry.coder.com/coder/jetbrains/coder"
   version    = "~> 1.0"
   agent_id   = coder_agent.main.id
