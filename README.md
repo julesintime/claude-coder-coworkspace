@@ -479,25 +479,38 @@ kubectl auth can-i get pods --all-namespaces
 
 ## Advanced Usage
 
-### Custom MCP Servers
+### MCP Servers Configuration
 
-Add custom MCP servers to `~/.config/coder/mcp/config.json`:
+**Important**: MCP (Model Context Protocol) servers are configured on your **LOCAL machine**, not in the workspace template.
 
-```json
-{
-  "mcpServers": {
-    "desktop-commander": {
-      "command": "desktop-commander",
-      "enabled": true
-    },
-    "custom-server": {
-      "command": "node",
-      "args": ["/path/to/server.js"],
-      "enabled": true
-    }
-  }
-}
+The following MCP servers are available and pre-configured with Coder:
+
+- **sequential-thinking** - Advanced reasoning with chain-of-thought
+- **deepwiki** - GitHub repository documentation access
+- **context7** - Library documentation and code examples
+- **desktop-commander** - Long-running process management
+
+#### Configure MCP Servers on Your Local Machine
+
+```bash
+# On your LOCAL computer (not in the workspace):
+coder exp mcp configure
+
+# This will guide you through enabling MCP servers for Coder CLI
 ```
+
+#### Using MCP Servers with Claude Code in Workspace
+
+Once configured locally, MCP servers are automatically available when you use Claude Code CLI in any workspace:
+
+```bash
+# In your workspace terminal:
+claude "use sequential-thinking to solve this complex problem"
+claude "search deepwiki for React documentation"
+claude "get context7 docs for Next.js routing"
+```
+
+**Note**: The workspace template includes `desktop-commander` for managing long-running processes (dev servers, watchers, etc.).
 
 ### Install Additional Tools
 

@@ -112,7 +112,7 @@ data "coder_parameter" "container_image" {
   display_name = "Container Image"
   type         = "string"
   description  = "Docker image to use for the workspace (runs inside Envbox)"
-  default      = "codercom/enterprise-base:ubuntu"
+  default      = "codercom/enterprise-node:ubuntu"
   mutable      = false
 }
 
@@ -321,10 +321,20 @@ data "coder_parameter" "setup_script" {
       fi
     fi
 
-    # MCP Servers
+    # TypeScript
+    if ! command -v tsc >/dev/null 2>&1; then
+      echo "📦 Installing TypeScript globally..."
+      if command -v npm >/dev/null 2>&1; then
+        sudo npm install -g typescript || echo "⚠️ TypeScript installation failed, skipping..."
+      fi
+    fi
+
+    # MCP Servers - desktop-commander, sequential-thinking, deepwiki, context7
     if command -v npm >/dev/null 2>&1; then
       echo "📦 Installing MCP servers..."
       sudo npm install -g @wonderwhy-er/desktop-commander || true
+      # Note: sequential-thinking, deepwiki, and context7 MCP servers are built into Claude Code
+      # and configured via 'coder exp mcp configure' on the client side, not in the workspace
     fi
 
     # Bash aliases and configuration
@@ -392,19 +402,14 @@ data "coder_provisioner" "me" {}
 data "coder_workspace" "me" {}
 data "coder_workspace_owner" "me" {}
 
-# External authentication for GitHub (if configured on Coder server)
-# Uncomment the block below after configuring external auth on your Coder server:
-#
-# data "coder_external_auth" "github" {
-#   # This must match the ID configured in Coder server's external auth settings
-#   # e.g., CODER_EXTERNAL_AUTH_0_ID="primary-github"
-#   id       = "primary-github"
-#   optional = true
-# }
-#
-# Then uncomment these locals in the locals block below:
-# has_github_external_auth = data.coder_external_auth.github.access_token != ""
-# github_token = local.has_github_external_auth ? data.coder_external_auth.github.access_token : data.coder_parameter.github_token.value
+# External authentication for GitHub
+# This fetches the GitHub token from Coder's external auth system
+data "coder_external_auth" "github" {
+  # This must match the ID configured in Coder server's external auth settings
+  # e.g., CODER_EXTERNAL_AUTH_0_ID="primary-github"
+  id       = "primary-github"
+  optional = true
+}
 
 # ========================================
 # LOCALS
@@ -416,14 +421,11 @@ locals {
   use_api_key      = length(data.coder_parameter.claude_api_key.value) > 0 && !local.use_oauth_token
   has_gemini_key   = length(data.coder_parameter.gemini_api_key.value) > 0
 
-  # GitHub authentication
-  # When external auth is configured, uncomment these lines:
-  # has_github_external_auth = data.coder_external_auth.github.access_token != ""
-  # github_token = local.has_github_external_auth ? data.coder_external_auth.github.access_token : data.coder_parameter.github_token.value
-
-  # Default: Use parameter token (comment out when using external auth)
-  has_github_token = length(data.coder_parameter.github_token.value) > 0
-  github_token     = data.coder_parameter.github_token.value
+  # GitHub authentication - prioritize external auth, fall back to parameter
+  has_github_external_auth = data.coder_external_auth.github.access_token != ""
+  has_github_param_token   = length(data.coder_parameter.github_token.value) > 0
+  github_token = local.has_github_external_auth ? data.coder_external_auth.github.access_token : data.coder_parameter.github_token.value
+  has_github_token = local.has_github_external_auth || local.has_github_param_token
 
   has_gitea_config = length(data.coder_parameter.gitea_url.value) > 0 && length(data.coder_parameter.gitea_token.value) > 0
 }
