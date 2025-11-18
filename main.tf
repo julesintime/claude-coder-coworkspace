@@ -47,6 +47,7 @@ data "coder_parameter" "cpu" {
   type         = "number"
   icon         = "/icon/memory.svg"
   mutable      = true
+  ephemeral    = true
   validation {
     min = 1
     max = 16
@@ -61,6 +62,7 @@ data "coder_parameter" "memory" {
   type         = "number"
   icon         = "/icon/memory.svg"
   mutable      = true
+  ephemeral    = true
   validation {
     min = 2
     max = 64
