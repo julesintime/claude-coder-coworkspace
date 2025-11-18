@@ -12,6 +12,13 @@ terraform {
 }
 
 # ========================================
+# CODER TASK DATA SOURCE
+# ========================================
+
+# Required for AI Tasks - provides task metadata including the prompt
+data "coder_task" "me" {}
+
+# ========================================
 # VARIABLES
 # ========================================
 
@@ -692,7 +699,7 @@ module "claude-code" {
   agent_id            = coder_agent.main.id
   workdir             = "/home/coder/projects"
   order               = 999
-  ai_prompt           = data.coder_parameter.ai_prompt.value
+  ai_prompt           = data.coder_task.me.prompt  # Use task prompt, not parameter
   system_prompt       = data.coder_parameter.system_prompt.value
   model               = "sonnet"
   permission_mode     = "plan"
@@ -701,6 +708,17 @@ module "claude-code" {
   # Authentication (optional - Claude Code works without it)
   claude_api_key          = local.use_api_key ? data.coder_parameter.claude_api_key.value : ""
   claude_code_oauth_token = local.use_oauth_token ? data.coder_parameter.claude_oauth_token.value : ""
+}
+
+# ========================================
+# CODER AI TASK RESOURCE
+# ========================================
+
+# Links Claude Code to the Coder Tasks system
+# This enables the "AI Task" functionality in the Coder UI
+resource "coder_ai_task" "task" {
+  count  = data.coder_workspace.me.start_count
+  app_id = module.claude-code[0].task_app_id
 }
 
 # MCP Server Configuration Script
