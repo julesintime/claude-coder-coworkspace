@@ -675,7 +675,7 @@ resource "coder_script" "configure_mcp_servers" {
     claude mcp add --transport http context7 https://mcp.context7.com/mcp || echo "⚠️  context7 failed to add"
 
     echo "Adding sequential-thinking MCP server..."
-    claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequential-thinking || echo "⚠️  sequential-thinking failed to add"
+    claude mcp add sequential-thinking npx @modelcontextprotocol/server-sequential-thinking || echo "⚠️  sequential-thinking failed to add"
 
     echo "Adding deepwiki MCP server..."
     claude mcp add --transport http deepwiki https://mcp.deepwiki.com/mcp || echo "⚠️  deepwiki failed to add"
