@@ -481,23 +481,23 @@ data "coder_parameter" "setup_script" {
 
 # CCR - Claude Code Resume
 ccr() {
-    local session_id=$1
-    local prompt=${2:-"continue"}
-    if [ -z "$session_id" ]; then
+    local session_id=$$1
+    local prompt=$${2:-"continue"}
+    if [ -z "$$session_id" ]; then
         echo "❌ Usage: ccr <session-id> [prompt]"
         echo "💡 Tip: Use 'ccr-list' to see recent sessions"
         return 1
     fi
-    echo "🔄 Resuming Claude session: $session_id"
-    claude --dangerously-skip-permissions -r "$session_id" "$prompt"
+    echo "🔄 Resuming Claude session: $$session_id"
+    claude --dangerously-skip-permissions -r "$$session_id" "$$prompt"
 }
 
 # CCR-LIST - List Recent Sessions
 ccr-list() {
-    local limit=${1:-20}
+    local limit=$${1:-20}
     echo "📋 Recent Claude Code sessions:"
     [ ! -f ~/.claude/history.jsonl ] && echo "⚠️  No history found" && return 1
-    tail -$limit ~/.claude/history.jsonl | jq -r 'if .timestamp then ((.timestamp / 1000) | strftime("%Y-%m-%d %H:%M")) as $time | "\($time) | \(.sessionId[0:8])... | \(.project // "?") | \(.display[0:60] // "no prompt")" else "? | ? | ? | ?" end' | tac | nl
+    tail -$$limit ~/.claude/history.jsonl | jq -r 'if .timestamp then ((.timestamp / 1000) | strftime("%Y-%m-%d %H:%M")) as $$time | "\($$time) | \(.sessionId[0:8])... | \(.project // "?") | \(.display[0:60] // "no prompt")" else "? | ? | ? | ?" end' | tac | nl
     echo ""
     echo "💡 Resume with: ccr <full-session-id>"
 }
@@ -511,9 +511,9 @@ ccr-find() {
 
 # CCT - Claude Code Tmux
 cct() {
-    local session_id=${1:-""}
-    local project_path=${2:-$(pwd)}
-    local tmux_session="claude-$(basename $project_path)"
+    local session_id=$${1:-""}
+    local project_path=$${2:-$$(pwd)}
+    local tmux_session="claude-$$(basename $$project_path)"
 
     if ! tmux has-session -t "$tmux_session" 2>/dev/null; then
         echo "🚀 Creating tmux session: $tmux_session"
