@@ -199,6 +199,14 @@ export CODER_EXTERNAL_AUTH_0_CLIENT_SECRET="your_github_oauth_secret"
 - ✅ Secure token storage in Coder's database
 - ✅ No need to manually manage PATs
 
+**Using Logto or Keycloak for SSO?**
+
+See [SSO and External Auth Integration Guide](docs/SSO_AND_EXTERNAL_AUTH_GUIDE.md) for comprehensive documentation on how to configure:
+- Logto/Keycloak SSO for Coder platform login
+- GitHub/Gitea External Auth for workspace Git operations
+- Understanding the difference between SSO and External Auth
+- Recommended architecture and migration paths
+
 ### Advanced Configuration
 
 Edit `system_prompt` parameter to customize AI behavior:
