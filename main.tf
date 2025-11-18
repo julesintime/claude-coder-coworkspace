@@ -968,7 +968,7 @@ resource "coder_script" "claude_code_ui" {
 
     # Install Claude Code UI globally
     echo "📦 Installing Claude Code UI..."
-    npm install -g @siteboon/claude-code-ui || { echo "❌ Claude Code UI installation failed"; exit 1; }
+    sudo npm install -g @siteboon/claude-code-ui || { echo "❌ Claude Code UI installation failed"; exit 1; }
 
     # Create data directory for persistence
     mkdir -p /home/coder/.claude-code-ui
@@ -1026,7 +1026,7 @@ resource "coder_script" "vibe_kanban" {
     FRONTEND_PORT=${data.coder_parameter.vibe_kanban_port.value} \
     BACKEND_PORT=$((${data.coder_parameter.vibe_kanban_port.value} + 1)) \
     HOST=127.0.0.1 \
-    pm2 start --name vibe-kanban -- npx vibe-kanban
+    pm2 start "npx vibe-kanban" --name vibe-kanban
 
     pm2 save
     echo "✅ Vibe Kanban started successfully!"
