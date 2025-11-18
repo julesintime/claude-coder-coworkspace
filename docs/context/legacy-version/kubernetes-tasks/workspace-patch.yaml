@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coder-workspace
+  namespace: coder-workspaces
+spec:
+  template:
+    spec:
+      serviceAccountName: coder-workspace-sa
+      containers:
+      - name: coder-workspace
+        envFrom:
+        - configMapRef:
+            name: coder-workspace-config
+        - secretRef:
+            name: coder-secrets
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "512Mi"
+          limits:
+            cpu: "1"
+            memory: "2Gi"

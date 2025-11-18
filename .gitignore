@@ -1,0 +1,43 @@
+# Terraform files
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+terraform.tfvars
+*.auto.tfvars
+
+# Coder files
+.coder/
+*.coder
+
+# IDE files
+.vscode/launch.json
+.vscode/tasks.json
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Secrets
+*.pem
+*.key
+credentials.json
+secrets/
+
+# Local test files
+test-params.yaml
+local-values.yaml
+
+# Build artifacts
+dist/
+build/
+*.tar.gz
+*.zip
+
+# Logs
+*.log
+logs/

@@ -1,0 +1,42 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: coder-workspace-tasks
+
+# Common labels applied to all resources
+commonLabels:
+  app: coder-workspace-tasks
+  managed-by: kustomize
+
+# Namespace for the deployment
+namespace: coder-workspaces
+
+# Resources to include
+resources:
+  - namespace.yaml
+  - rbac.yaml
+
+# Images to update
+images:
+  - name: codercom/example-universal
+    newTag: ubuntu
+
+# ConfigMap for additional configuration
+configMapGenerator:
+  - name: coder-workspace-config
+    literals:
+      - CODER_WORKSPACE_IMAGE=codercom/example-universal:ubuntu
+      - CODER_PREVIEW_PORT=4200
+
+# Secret for sensitive data (API keys, etc.)
+# NOTE: In production, use external secret management
+secretGenerator:
+  - name: coder-secrets
+    literals:
+      - ANTHROPIC_API_KEY=your-api-key-here
+    type: Opaque
+
+# Patches for customization
+patchesStrategicMerge:
+  - workspace-patch.yaml

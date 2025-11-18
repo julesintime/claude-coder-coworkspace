@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: coder-workspace-sa
+  namespace: coder-workspaces
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: coder-workspace-role
+  namespace: coder-workspaces
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "persistentvolumeclaims"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: coder-workspace-rolebinding
+  namespace: coder-workspaces
+subjects:
+- kind: ServiceAccount
+  name: coder-workspace-sa
+  namespace: coder-workspaces
+roleRef:
+  kind: Role
+  name: coder-workspace-role
+  apiGroup: rbac.authorization.k8s.io
