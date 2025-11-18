@@ -403,13 +403,17 @@ data "coder_workspace" "me" {}
 data "coder_workspace_owner" "me" {}
 
 # External authentication for GitHub
-# This fetches the GitHub token from Coder's external auth system
-data "coder_external_auth" "github" {
-  # This must match the ID configured in Coder server's external auth settings
-  # e.g., CODER_EXTERNAL_AUTH_0_ID="primary-github"
-  id       = "primary-github"
-  optional = true
-}
+# NOTE: Before uncommenting, verify the external auth ID on your Coder server:
+# Run this in a workspace: coder external-auth access-token <id>
+# The ID must match what's configured in your Coder server's external auth settings
+# (e.g., CODER_EXTERNAL_AUTH_0_ID="primary-github" or "github")
+#
+# Uncomment the block below once you verify the ID:
+#
+# data "coder_external_auth" "github" {
+#   id       = "primary-github"  # ← Change this to match your server's config
+#   optional = true
+# }
 
 # ========================================
 # LOCALS
@@ -421,11 +425,16 @@ locals {
   use_api_key      = length(data.coder_parameter.claude_api_key.value) > 0 && !local.use_oauth_token
   has_gemini_key   = length(data.coder_parameter.gemini_api_key.value) > 0
 
-  # GitHub authentication - prioritize external auth, fall back to parameter
-  has_github_external_auth = data.coder_external_auth.github.access_token != ""
-  has_github_param_token   = length(data.coder_parameter.github_token.value) > 0
-  github_token = local.has_github_external_auth ? data.coder_external_auth.github.access_token : data.coder_parameter.github_token.value
-  has_github_token = local.has_github_external_auth || local.has_github_param_token
+  # GitHub authentication
+  # When external auth is enabled, uncomment these lines:
+  # has_github_external_auth = data.coder_external_auth.github.access_token != ""
+  # has_github_param_token   = length(data.coder_parameter.github_token.value) > 0
+  # github_token = local.has_github_external_auth ? data.coder_external_auth.github.access_token : data.coder_parameter.github_token.value
+  # has_github_token = local.has_github_external_auth || local.has_github_param_token
+
+  # Default: Use parameter token (comment these out when using external auth)
+  has_github_token = length(data.coder_parameter.github_token.value) > 0
+  github_token     = data.coder_parameter.github_token.value
 
   has_gitea_config = length(data.coder_parameter.gitea_url.value) > 0 && length(data.coder_parameter.gitea_token.value) > 0
 }
