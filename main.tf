@@ -266,7 +266,7 @@ data "coder_parameter" "setup_script" {
   type         = "string"
   form_type    = "textarea"
   description  = "Bash script to run before starting the AI agent"
-  mutable      = true  # Temporarily mutable to allow workspace updates
+  mutable      = false
   default      = <<-EOT
     #!/bin/bash
     set -e
