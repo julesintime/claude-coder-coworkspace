@@ -797,6 +797,7 @@ module "cursor-cli" {
   source   = "registry.coder.com/coder-labs/cursor-cli/coder"
   version  = "0.2.1"
   agent_id = coder_agent.main.id
+  folder   = "/home/coder/projects"
 }
 
 # ========================================
