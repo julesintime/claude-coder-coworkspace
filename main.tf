@@ -542,9 +542,9 @@ cct-list() {
 
 # CCT-KILL - Kill Tmux Session
 cct-kill() {
-    local name=${1:-""}
-    [ -z "$name" ] && cct-list && read -p "Enter session: " name
-    [ -n "$name" ] && tmux kill-session -t "$name" 2>/dev/null && echo "✅ Killed: $name" || echo "❌ Not found"
+    local name=$${1:-""}
+    [ -z "$$name" ] && cct-list && read -p "Enter session: " name
+    [ -n "$$name" ] && tmux kill-session -t "$$name" 2>/dev/null && echo "✅ Killed: $$name" || echo "❌ Not found"
 }
 
 # CCRA - Resume All Rate-Limited
