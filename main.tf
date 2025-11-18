@@ -110,6 +110,7 @@ data "coder_parameter" "claude_api_key" {
   type         = "string"
   default      = ""
   mutable      = true
+  ephemeral    = true
 }
 
 data "coder_parameter" "claude_oauth_token" {
@@ -119,6 +120,7 @@ data "coder_parameter" "claude_oauth_token" {
   type         = "string"
   default      = ""
   mutable      = true
+  ephemeral    = true
 }
 
 data "coder_parameter" "claude_api_endpoint" {
@@ -128,6 +130,7 @@ data "coder_parameter" "claude_api_endpoint" {
   type         = "string"
   default      = ""
   mutable      = true
+  ephemeral    = true
 }
 
 data "coder_parameter" "gemini_api_key" {
@@ -137,6 +140,7 @@ data "coder_parameter" "gemini_api_key" {
   type         = "string"
   default      = ""
   mutable      = true
+  ephemeral    = true
 }
 
 data "coder_parameter" "github_token" {
@@ -146,6 +150,7 @@ data "coder_parameter" "github_token" {
   type         = "string"
   default      = ""
   mutable      = true
+  ephemeral    = true
 }
 
 data "coder_parameter" "gitea_url" {
@@ -155,6 +160,7 @@ data "coder_parameter" "gitea_url" {
   type         = "string"
   default      = ""
   mutable      = true
+  ephemeral    = true
 }
 
 data "coder_parameter" "gitea_token" {
@@ -164,6 +170,7 @@ data "coder_parameter" "gitea_token" {
   type         = "string"
   default      = ""
   mutable      = true
+  ephemeral    = true
 }
 
 # ========================================
@@ -216,6 +223,7 @@ data "coder_parameter" "ai_prompt" {
   default     = ""
   description = "Initial prompt for Claude Code on workspace startup"
   mutable     = true
+  ephemeral   = true
 }
 
 data "coder_parameter" "setup_script" {
