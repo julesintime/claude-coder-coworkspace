@@ -463,12 +463,119 @@ data "coder_parameter" "setup_script" {
       echo "📦 Configuring MCP servers with Claude Code..."
       # Add MCP servers using claude mcp add with appropriate transports
       claude mcp add --transport http context7 https://mcp.context7.com/mcp || echo "⚠️ context7 MCP server failed to add"
-      claude mcp add sequential-thinking npx -y @modelcontextprotocol/server-sequential-thinking || echo "⚠️ sequential-thinking MCP server failed to add"
+      claude mcp add sequential-thinking npx @modelcontextprotocol/server-sequential-thinking || echo "⚠️ sequential-thinking MCP server failed to add"
       claude mcp add --transport http deepwiki https://mcp.deepwiki.com/mcp || echo "⚠️ deepwiki MCP server failed to add"
       echo "✓ MCP servers configured (context7, sequential-thinking, deepwiki)"
     else
       echo "⚠️ Claude CLI not available, skipping MCP server configuration"
     fi
+
+    # Install Claude Resume Helpers
+    echo "⚙️ Installing Claude session management helpers..."
+    mkdir -p ~/scripts ~/.claude/resume-logs
+
+    # Download claude-resume-helpers.sh from template
+    cat > ~/scripts/claude-resume-helpers.sh << 'CLAUDE_HELPERS_EOF'
+#!/bin/bash
+# Claude Code Resume Helpers - Integrated into Coder Workspace
+
+# CCR - Claude Code Resume
+ccr() {
+    local session_id=$1
+    local prompt=${2:-"continue"}
+    if [ -z "$session_id" ]; then
+        echo "❌ Usage: ccr <session-id> [prompt]"
+        echo "💡 Tip: Use 'ccr-list' to see recent sessions"
+        return 1
+    fi
+    echo "🔄 Resuming Claude session: $session_id"
+    claude --dangerously-skip-permissions -r "$session_id" "$prompt"
+}
+
+# CCR-LIST - List Recent Sessions
+ccr-list() {
+    local limit=${1:-20}
+    echo "📋 Recent Claude Code sessions:"
+    [ ! -f ~/.claude/history.jsonl ] && echo "⚠️  No history found" && return 1
+    tail -$limit ~/.claude/history.jsonl | jq -r 'if .timestamp then ((.timestamp / 1000) | strftime("%Y-%m-%d %H:%M")) as $time | "\($time) | \(.sessionId[0:8])... | \(.project // "?") | \(.display[0:60] // "no prompt")" else "? | ? | ? | ?" end' | tac | nl
+    echo ""
+    echo "💡 Resume with: ccr <full-session-id>"
+}
+
+# CCR-FIND - Search Sessions
+ccr-find() {
+    [ -z "$1" ] && echo "❌ Usage: ccr-find <keyword>" && return 1
+    echo "🔍 Searching: $1"
+    grep -i "$1" ~/.claude/history.jsonl 2>/dev/null | jq -r 'if .timestamp then ((.timestamp / 1000) | strftime("%Y-%m-%d %H:%M")) as $time | "\($time) | \(.sessionId) | \(.project // "?") | \(.display[0:80])" else "? | ? | ? | ?" end' | head -20 | nl
+}
+
+# CCT - Claude Code Tmux
+cct() {
+    local session_id=${1:-""}
+    local project_path=${2:-$(pwd)}
+    local tmux_session="claude-$(basename $project_path)"
+
+    if ! tmux has-session -t "$tmux_session" 2>/dev/null; then
+        echo "🚀 Creating tmux session: $tmux_session"
+        tmux new-session -d -s "$tmux_session" -c "$project_path" -n "claude"
+        tmux new-window -t "$tmux_session:2" -c "$project_path" -n "terminal"
+        tmux new-window -t "$tmux_session:3" -c "$project_path" -n "logs"
+
+        if [ -n "$session_id" ]; then
+            tmux send-keys -t "$tmux_session:1" "cd $project_path && claude -r $session_id" C-m
+        else
+            tmux send-keys -t "$tmux_session:1" "cd $project_path && claude" C-m
+        fi
+
+        tmux send-keys -t "$tmux_session:3" "watch -n 5 'tail -20 ~/.claude/debug/*.txt 2>/dev/null | tail -50'" C-m
+        tmux select-window -t "$tmux_session:1"
+    fi
+
+    tmux attach -t "$tmux_session"
+}
+
+# CCT-LIST - List Tmux Sessions
+cct-list() {
+    echo "📺 Active Claude tmux sessions:"
+    tmux list-sessions 2>/dev/null | grep "claude-" || echo "⚠️  No sessions"
+}
+
+# CCT-KILL - Kill Tmux Session
+cct-kill() {
+    local name=${1:-""}
+    [ -z "$name" ] && cct-list && read -p "Enter session: " name
+    [ -n "$name" ] && tmux kill-session -t "$name" 2>/dev/null && echo "✅ Killed: $name" || echo "❌ Not found"
+}
+
+# CCRA - Resume All Rate-Limited
+ccra() {
+    echo "🔄 Scanning for rate-limited sessions..."
+    local sessions=$(find ~/.claude/projects -name "*.jsonl" -exec grep -l "rate.*limit\|exceeded" {} \; 2>/dev/null)
+    [ -z "$sessions" ] && echo "✅ No rate-limited sessions" && return 0
+
+    local count=0
+    for file in $sessions; do
+        local sid=$(basename "$file" .jsonl)
+        [[ $sid == agent-* ]] && continue
+        count=$((count + 1))
+        echo "[$count] Resuming: $sid"
+        timeout 30s claude -r "$sid" "continue" > ~/.claude/resume-logs/$(date +%Y%m%d-%H%M%S)-$sid.log 2>&1 &
+        sleep 2
+    done
+    echo "✅ Resumed $count session(s)"
+}
+
+# CCR-CURRENT - Show Current Session
+ccr-current() {
+    echo "🔍 Current session info:"
+    [ -f ~/.claude/history.jsonl ] && tail -1 ~/.claude/history.jsonl | jq -r '"📝 \(.sessionId[0:8])... - \(.project) - \(.display[0:50])"'
+    pgrep -f "claude" >/dev/null && echo "🏃 Claude is running (PID: $(pgrep -f claude))" || echo "⚠️  No active Claude"
+}
+
+export -f ccr ccr-list ccr-find cct cct-list cct-kill ccra ccr-current
+CLAUDE_HELPERS_EOF
+
+    chmod +x ~/scripts/claude-resume-helpers.sh
 
     # Bash aliases and configuration
     echo "⚙️ Configuring bash aliases..."
@@ -477,6 +584,11 @@ data "coder_parameter" "setup_script" {
 # ========================================
 # Unified DevOps Template Aliases
 # ========================================
+
+# Claude Session Management (source helpers)
+if [ -f ~/scripts/claude-resume-helpers.sh ]; then
+    source ~/scripts/claude-resume-helpers.sh
+fi
 
 # AI Tools
 alias cc-c='claude'
