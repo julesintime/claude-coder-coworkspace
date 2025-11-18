@@ -782,11 +782,13 @@ module "codex" {
 
 # Goose AI Agent
 module "goose" {
-  count    = data.coder_workspace.me.start_count
-  source   = "registry.coder.com/coder/goose/coder"
-  version  = "3.0.0"
-  agent_id = coder_agent.main.id
-  folder   = "/home/coder/projects"
+  count          = data.coder_workspace.me.start_count
+  source         = "registry.coder.com/coder/goose/coder"
+  version        = "3.0.0"
+  agent_id       = coder_agent.main.id
+  folder         = "/home/coder/projects"
+  goose_provider = "anthropic"
+  goose_model    = "claude-3-5-sonnet-20241022"
 }
 
 # Cursor CLI
