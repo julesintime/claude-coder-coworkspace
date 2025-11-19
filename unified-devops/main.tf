@@ -1108,9 +1108,9 @@ module "goose" {
 # DEVELOPER TOOL MODULES
 # ========================================
 
-# Dotfiles (conditional on repo URL)
+# Dotfiles - always enabled with default repo
 module "dotfiles" {
-  count                = data.coder_parameter.dotfiles_repo_url.value != "" ? data.coder_workspace.me.start_count : 0
+  count                = data.coder_workspace.me.start_count
   source               = "registry.coder.com/coder/dotfiles/coder"
   version              = "1.2.1"
   agent_id             = coder_agent.main.id
