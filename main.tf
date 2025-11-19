@@ -357,131 +357,12 @@ data "coder_parameter" "setup_script" {
     mkdir -p /home/coder/projects
     cd /home/coder/projects
 
-    # Configure tmux - DISABLED (replaced by tmux module)
-    # echo "⚙️ Configuring tmux..."
-    # mkdir -p ~/.config/tmux
-    # cat > ~/.tmux.conf << 'TMUX_EOF'
-# # Enable mouse support
-# set -g mouse on
-#
-# # Improve colors
-# set -g default-terminal "screen-256color"
-#
-# # Set scrollback buffer
-# set -g history-limit 50000
-#
-# # Start windows and panes at 1, not 0
-# set -g base-index 1
-# setw -g pane-base-index 1
-# TMUX_EOF
-
-    # System packages and CLIs (using apt for easier upgrades)
-    echo "📦 Installing system packages and CLIs..."
-    sudo apt-get update
-    sudo apt-get install -y --fix-missing \
-      tmux curl wget git jq \
-      build-essential \
-      python3-pip \
-      || echo "⚠️ Some packages failed, continuing..."
-
     # Docker verification
     if command -v docker >/dev/null 2>&1; then
       echo "✓ Docker is available"
       docker version
     else
       echo "⚠️ Docker not found (expected with Envbox)"
-    fi
-
-    # Kubernetes CLI (kubectl) via apt
-    if ! command -v kubectl >/dev/null 2>&1; then
-      echo "📦 Installing kubectl via apt..."
-      sudo apt-get install -y apt-transport-https ca-certificates curl gnupg
-      curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-      echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
-      sudo apt-get update
-      sudo apt-get install -y kubectl
-    fi
-
-    # GitHub CLI via apt
-    if ! command -v gh >/dev/null 2>&1; then
-      echo "📦 Installing GitHub CLI via apt..."
-      (type -p wget >/dev/null || (sudo apt update && sudo apt-get install wget -y)) \
-        && sudo mkdir -p -m 755 /etc/apt/keyrings \
-        && wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
-        && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
-        && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-        && sudo apt update \
-        && sudo apt install gh -y
-    fi
-
-    # Gitea CLI (tea) via apt
-    if ! command -v tea >/dev/null 2>&1; then
-      echo "📦 Installing Gitea CLI (tea) via apt..."
-      wget -qO- https://dl.gitea.com/tea/0.9.2/tea-0.9.2-linux-amd64 -O /tmp/tea \
-        && sudo install -m 755 /tmp/tea /usr/local/bin/tea \
-        && rm /tmp/tea
-    fi
-
-    # TypeScript verification (should be pre-installed in enterprise-node image)
-    if command -v tsc >/dev/null 2>&1; then
-      echo "✓ TypeScript already installed: $(tsc --version)"
-    else
-      echo "📦 Installing TypeScript globally..."
-      if command -v npm >/dev/null 2>&1; then
-        sudo npm install -g typescript || echo "⚠️ TypeScript installation failed, skipping..."
-      fi
-    fi
-
-    # Gemini CLI - DISABLED (replaced by gemini module)
-    # if ! command -v gemini >/dev/null 2>&1; then
-    #   echo "📦 Installing Gemini CLI..."
-    #   if command -v npm >/dev/null 2>&1; then
-    #     sudo npm install -g @google/generative-ai-cli || echo "⚠️ Gemini CLI installation failed, skipping..."
-    #   else
-    #     echo "⚠️ npm not found, skipping Gemini CLI installation"
-    #   fi
-    # fi
-
-    # Claude Code CLI (via npm for auto-updates)
-    if ! command -v claude >/dev/null 2>&1; then
-      echo "📦 Installing Claude Code CLI..."
-      if command -v npm >/dev/null 2>&1; then
-        sudo npm install -g @anthropic-ai/claude-code || echo "⚠️ Claude CLI installation failed, skipping..."
-      fi
-    fi
-
-    # PM2 Process Manager (for Claude Code UI and Vibe Kanban)
-    # Install with retry logic to handle network issues
-    if ! command -v pm2 >/dev/null 2>&1; then
-      echo "📦 Installing PM2 process manager..."
-      if command -v npm >/dev/null 2>&1; then
-        for i in 1 2 3; do
-          echo "PM2 install attempt $i/3..."
-          if sudo npm install -g pm2 --force 2>&1; then
-            echo "✅ PM2 installed successfully"
-            break
-          else
-            echo "⚠️ PM2 install attempt $i failed"
-            if [ $i -eq 3 ]; then
-              echo "❌ PM2 installation failed after 3 attempts"
-            else
-              sleep 5
-            fi
-          fi
-        done
-      fi
-    fi
-
-    # MCP Servers (using claude mcp add)
-    if command -v claude >/dev/null 2>&1; then
-      echo "📦 Configuring MCP servers with Claude Code..."
-      # Add MCP servers using claude mcp add with appropriate transports
-      claude mcp add --transport http context7 https://mcp.context7.com/mcp || echo "⚠️ context7 MCP server failed to add"
-      claude mcp add sequential-thinking npx @modelcontextprotocol/server-sequential-thinking || echo "⚠️ sequential-thinking MCP server failed to add"
-      claude mcp add --transport http deepwiki https://mcp.deepwiki.com/mcp || echo "⚠️ deepwiki MCP server failed to add"
-      echo "✓ MCP servers configured (context7, sequential-thinking, deepwiki)"
-    else
-      echo "⚠️ Claude CLI not available, skipping MCP server configuration"
     fi
 
     # Install Claude Resume Helpers
@@ -664,11 +545,9 @@ EOF
       fi
     fi
 
-    echo "✅ Workspace setup complete!"
-    echo "🎯 Available AI tools: Claude Code (cc-c), Gemini CLI"
-    echo "🎯 MCP servers: context7, sequential-thinking, deepwiki"
+    echo "✅ Workspace base setup complete!"
+    echo "⏳ System packages, PM2, and AI tools are installing in parallel..."
     echo "🐳 Docker is ready - try: docker run hello-world"
-    echo "☸️ Kubernetes is ready - try: kubectl version"
 
     exit 0
   EOT
@@ -867,6 +746,132 @@ resource "coder_env" "gitea_token" {
 }
 
 # ========================================
+# CRITICAL DEPENDENCIES
+# ========================================
+
+# Install system packages FIRST - blocks login to prevent race conditions
+resource "coder_script" "install_system_packages" {
+  agent_id     = coder_agent.main.id
+  display_name = "Install System Packages"
+  icon         = "/icon/memory.svg"
+  script = <<-EOT
+    #!/bin/bash
+    set -e
+
+    echo "📦 Installing system packages and CLIs..."
+
+    # Wait for any existing apt processes to complete
+    for i in {1..30}; do
+      if ! sudo fuser /var/lib/apt/lists/lock >/dev/null 2>&1 && \
+         ! sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; then
+        break
+      fi
+      echo "Waiting for other apt processes... ($i/30)"
+      sleep 2
+    done
+
+    # CONSOLIDATED: Install ALL system packages in ONE apt operation to avoid lock conflicts
+    echo "Installing base system packages..."
+    sudo apt-get update
+    sudo apt-get install -y --fix-missing \
+      curl wget git jq \
+      build-essential \
+      python3-pip \
+      apt-transport-https ca-certificates gnupg \
+      tmux \
+      || echo "⚠️ Some packages failed, continuing..."
+
+    # Kubernetes CLI (kubectl)
+    if ! command -v kubectl >/dev/null 2>&1; then
+      echo "📦 Installing kubectl..."
+      curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+      sudo apt-get update
+      sudo apt-get install -y kubectl
+    fi
+
+    # GitHub CLI
+    if ! command -v gh >/dev/null 2>&1; then
+      echo "📦 Installing GitHub CLI..."
+      wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+      echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+      sudo apt-get update
+      sudo apt-get install -y gh
+    fi
+
+    # Gitea CLI (tea)
+    if ! command -v tea >/dev/null 2>&1; then
+      echo "📦 Installing Gitea CLI (tea)..."
+      wget -qO- https://dl.gitea.com/tea/0.9.2/tea-0.9.2-linux-amd64 -O /tmp/tea
+      sudo install -m 755 /tmp/tea /usr/local/bin/tea
+      rm /tmp/tea
+    fi
+
+    # TypeScript (if not present)
+    if ! command -v tsc >/dev/null 2>&1; then
+      if command -v npm >/dev/null 2>&1; then
+        echo "📦 Installing TypeScript..."
+        sudo npm install -g typescript || echo "⚠️ TypeScript installation failed"
+      fi
+    fi
+
+    echo "✅ System packages installed successfully"
+  EOT
+  run_on_start = true
+  run_on_stop  = false
+  # CRITICAL: Block login until packages are installed to prevent race conditions
+  start_blocks_login = true
+  timeout = 600
+}
+
+# Install PM2 AFTER system packages - also blocks login
+resource "coder_script" "install_pm2" {
+  agent_id     = coder_agent.main.id
+  display_name = "Install PM2"
+  icon         = "/icon/code.svg"
+  script = <<-EOT
+    #!/bin/bash
+    set -e
+
+    echo "📦 Installing PM2 process manager..."
+
+    if ! command -v pm2 >/dev/null 2>&1; then
+      if command -v npm >/dev/null 2>&1; then
+        for i in 1 2 3; do
+          echo "PM2 install attempt $i/3..."
+          if sudo npm install -g pm2 --force 2>&1; then
+            echo "✅ PM2 installed successfully"
+            break
+          else
+            echo "⚠️ PM2 install attempt $i failed"
+            if [ $i -eq 3 ]; then
+              echo "❌ PM2 installation failed after 3 attempts"
+              exit 1
+            else
+              sleep 5
+            fi
+          fi
+        done
+      else
+        echo "❌ npm not found, cannot install PM2"
+        exit 1
+      fi
+    else
+      echo "✅ PM2 already installed"
+    fi
+
+    pm2 --version
+  EOT
+  run_on_start = true
+  run_on_stop  = false
+  # PM2 must be installed before UI tools can start
+  depends_on = [coder_script.install_system_packages]
+  start_blocks_login = true
+  timeout = 300
+}
+
+# ========================================
 # AI MODULES
 # ========================================
 
@@ -883,9 +888,9 @@ module "claude-code" {
   ai_prompt           = data.coder_task.me.prompt  # Use task prompt, not parameter
   system_prompt       = data.coder_parameter.system_prompt.value
   model               = "sonnet"
-  permission_mode     = "plan"
+  permission_mode     = "bypassPermissions"
   post_install_script = ""  # Empty - we'll use a separate script for MCP setup
-
+  dangerously_skip_permissions = "true"
   # Authentication (optional - Claude Code works without it)
   claude_api_key          = local.use_api_key ? data.coder_parameter.claude_api_key.value : ""
   claude_code_oauth_token = local.use_oauth_token ? data.coder_parameter.claude_oauth_token.value : ""
@@ -938,9 +943,10 @@ resource "coder_script" "configure_mcp_servers" {
   run_on_stop  = false
   # Ensure the Claude Code module is installed before configuring MCP servers
   depends_on = [module.claude-code]
-  # MCP is nice-to-have, don't block login - user can configure later if needed
-  start_blocks_login = false
-  timeout = 300
+  # CRITICAL: Block login to ensure MCP is configured before UI tools start
+  # UI tools depend on MCP servers being ready, so this must complete first
+  start_blocks_login = true
+  timeout = 600
 }
 
 # ========================================
@@ -958,22 +964,6 @@ resource "coder_script" "claude_code_ui" {
     set -e
 
     echo "🎨 Setting up Claude Code UI..."
-
-    # Verify PM2 is installed (should be from setup script)
-    if ! command -v pm2 >/dev/null 2>&1; then
-      echo "⚠️  PM2 not found, waiting for setup script..."
-      for i in {1..30}; do
-        sleep 2
-        if command -v pm2 >/dev/null 2>&1; then
-          echo "✓ PM2 now available"
-          break
-        fi
-      done
-      if ! command -v pm2 >/dev/null 2>&1; then
-        echo "❌ PM2 still not available after waiting"
-        exit 1
-      fi
-    fi
 
     # Install Claude Code UI with retry logic for network issues
     echo "📦 Installing Claude Code UI..."
@@ -1011,8 +1001,9 @@ resource "coder_script" "claude_code_ui" {
   EOT
   run_on_start = true
   run_on_stop  = false
-  # Wait for Claude Code module to be available before starting the UI
-  depends_on = [module.claude-code]
+  # Depends on PM2, Claude Code, and MCP configuration being complete
+  # MCP servers must be configured before UI tools start to ensure agentapi is fully ready
+  depends_on = [coder_script.install_pm2, module.claude-code, coder_script.configure_mcp_servers]
   # UI is non-blocking for login (doesn't need to block user access)
   start_blocks_login = false
   timeout = 600  # Increased for slow networks and retries
@@ -1023,34 +1014,18 @@ resource "coder_script" "vibe_kanban" {
   count        = data.coder_parameter.enable_vibe_kanban.value ? 1 : 0
   agent_id     = coder_agent.main.id
   display_name = "Vibe Kanban"
-  icon         = "/icon/workspace.svg"
+  icon         = "/icon/code.svg"
   script = <<-EOT
     #!/bin/bash
     set -e
 
     echo "📋 Setting up Vibe Kanban..."
 
-    # Verify PM2 is installed (should be from setup script)
-    if ! command -v pm2 >/dev/null 2>&1; then
-      echo "⚠️  PM2 not found, waiting for setup script..."
-      for i in {1..30}; do
-        sleep 2
-        if command -v pm2 >/dev/null 2>&1; then
-          echo "✓ PM2 now available"
-          break
-        fi
-      done
-      if ! command -v pm2 >/dev/null 2>&1; then
-        echo "❌ PM2 still not available after waiting"
-        exit 1
-      fi
-    fi
-
     # Install Vibe Kanban with retry logic
     echo "📦 Installing Vibe Kanban..."
     for i in 1 2 3; do
       echo "Vibe Kanban install attempt $i/3..."
-      if npm install -g vibe-kanban --force 2>&1; then
+      if sudo npm install -g vibe-kanban --force 2>&1; then
         echo "✅ Vibe Kanban installed successfully"
         break
       else
@@ -1081,8 +1056,9 @@ resource "coder_script" "vibe_kanban" {
   EOT
   run_on_start = true
   run_on_stop  = false
-  # Start after Claude Code module is available (uses PM2/npm)
-  depends_on = [module.claude-code]
+  # Depends on PM2, Claude Code, and MCP configuration being complete
+  # MCP servers must be configured before UI tools start to ensure agentapi is fully ready
+  depends_on = [coder_script.install_pm2, module.claude-code, coder_script.configure_mcp_servers]
   # Non-blocking for login; kanban is optional UI
   start_blocks_login = false
   timeout = 600  # Increased for slow networks and retries
@@ -1117,57 +1093,12 @@ module "codex" {
 #   goose_model    = "claude-3-5-sonnet-20241022"
 # }
 
-# Manual Goose Installation Script (workaround for module race condition)
-resource "coder_script" "install_goose" {
-  agent_id     = coder_agent.main.id
-  display_name = "Install Goose AI"
-  icon         = "/icon/goose.svg"
-  script = <<-EOT
-    #!/bin/bash
-    set -e
-
-    echo "📦 Installing Goose AI Agent..."
-
-    # Wait a bit to avoid race condition with claude-code module
-    sleep 5
-
-    # Install Goose
-    if ! command -v goose >/dev/null 2>&1; then
-      echo "Downloading and installing Goose..."
-      curl -fsSL https://github.com/block/goose/releases/download/stable/download_cli.sh | CONFIGURE=false bash
-      echo "✅ Goose installed successfully"
-    else
-      echo "✅ Goose already installed"
-    fi
-
-    # Verify installation
-    if command -v goose >/dev/null 2>&1; then
-      goose --version
-    else
-      echo "⚠️  Goose installation may have failed"
-      exit 1
-    fi
-  EOT
-  run_on_start = true
-  run_on_stop  = false
-  # Ensure the agent is ready before installing Goose
-  depends_on = [coder_agent.main]
-  # Goose is optional, don't block login
-  start_blocks_login = false
-  timeout = 300
-}
-
 # ========================================
 # CONFIGURATION MODULES
 # ========================================
 
-# Tmux with plugins (replaces bash config)
-module "tmux" {
-  count    = data.coder_workspace.me.start_count
-  source   = "registry.coder.com/anomaly/tmux/coder"
-  version  = "1.0.0"
-  agent_id = coder_agent.main.id
-}
+# NOTE: tmux is now installed in install_system_packages to avoid apt lock conflicts
+# tmux module removed to prevent concurrent apt operations
 
 # ========================================
 # DEVELOPER TOOL MODULES
@@ -1338,14 +1269,14 @@ resource "coder_app" "vibe_kanban" {
   slug         = "vibe-kanban"
   display_name = "Vibe Kanban"
   icon         = "/icon/workspace.svg"
-  url          = "http://localhost:${data.coder_parameter.vibe_kanban_port.value + 1}"
+  url          = "http://localhost:${data.coder_parameter.vibe_kanban_port.value}"
   share        = "owner"  # Only workspace owner can access
   subdomain    = true
   open_in      = "tab"
   order        = 2
 
   healthcheck {
-    url       = "http://localhost:${data.coder_parameter.vibe_kanban_port.value + 1}/"
+    url       = "http://localhost:${data.coder_parameter.vibe_kanban_port.value}/"
     interval  = 5
     threshold = 20
   }
