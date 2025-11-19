@@ -64,7 +64,7 @@ data "coder_parameter" "container_image" {
   description  = "Docker image to use for the workspace (runs inside Envbox)"
   default      = "codercom/enterprise-node:ubuntu"
   mutable      = true
-  ephemeral    = false  # Persist container image selection
+  ephemeral    = true  # Use default without prompting
 }
 
 data "coder_parameter" "preview_port" {
@@ -74,7 +74,7 @@ data "coder_parameter" "preview_port" {
   type         = "number"
   default      = "3000"
   mutable      = true
-  ephemeral    = false  # Persist port configuration
+  ephemeral    = true  # Use default without prompting
 }
 
 # ========================================
@@ -138,7 +138,7 @@ data "coder_parameter" "gitea_url" {
   type         = "string"
   default      = ""
   mutable      = true
-  ephemeral    = false  # Persist Gitea URL (not a secret)
+  ephemeral    = true  # Use default without prompting
 }
 
 data "coder_parameter" "gitea_token" {
@@ -168,7 +168,7 @@ data "coder_parameter" "dotfiles_repo_url" {
   type         = "string"
   default      = "https://github.com/xoojulian/coder-dotfiles.git"
   mutable      = true
-  ephemeral    = false  # Persist dotfiles repo selection
+  ephemeral    = true  # Use default without prompting
 }
 
 data "coder_parameter" "git_clone_repo_url" {
@@ -178,7 +178,7 @@ data "coder_parameter" "git_clone_repo_url" {
   type         = "string"
   default      = ""
   mutable      = true
-  ephemeral    = false  # Persist repo URL selection
+  ephemeral    = true  # Use default without prompting
 }
 
 data "coder_parameter" "git_clone_path" {
@@ -188,7 +188,7 @@ data "coder_parameter" "git_clone_path" {
   type         = "string"
   default      = "/home/coder/projects/repo"
   mutable      = true
-  ephemeral    = false  # Persist clone path selection
+  ephemeral    = true  # Use default without prompting
 }
 
 data "coder_parameter" "enable_filebrowser" {
@@ -238,7 +238,7 @@ data "coder_parameter" "claude_code_ui_port" {
   type         = "number"
   default      = "38401"
   mutable      = true
-  ephemeral    = false  # Persist port configuration
+  ephemeral    = true  # Use default without prompting
 }
 
 data "coder_parameter" "vibe_kanban_port" {
@@ -248,7 +248,7 @@ data "coder_parameter" "vibe_kanban_port" {
   type         = "number"
   default      = "38402"
   mutable      = true
-  ephemeral    = false  # Persist port configuration
+  ephemeral    = true  # Use default without prompting
 }
 
 # ========================================
