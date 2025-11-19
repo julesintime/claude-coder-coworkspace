@@ -945,20 +945,12 @@ resource "coder_script" "claude_code_ui" {
 
     echo "🎨 Setting up Claude Code UI..."
 
-    # Wait for Claude CLI (installed by claude-code module)
-    for i in {1..30}; do
-      if command -v claude >/dev/null 2>&1; then
-        echo "✓ Claude CLI found"
-        break
-      fi
-      echo "Waiting for Claude CLI installation... ($i/30)"
-      sleep 2
-    done
-
+    # Verify Claude CLI is available (depends_on ensures claude-code module completed)
     if ! command -v claude >/dev/null 2>&1; then
       echo "⚠️ Claude CLI not found, skipping Claude Code UI setup"
       exit 0
     fi
+    echo "✓ Claude CLI found"
 
     # Install PM2 if not present
     if ! command -v pm2 >/dev/null 2>&1; then
