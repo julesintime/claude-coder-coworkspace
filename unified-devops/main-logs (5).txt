@@ -1,0 +1,840 @@
+Waiting for sysbox processes to startup...
+Waiting for dockerd to startup...
+Pulling from codercom/enterprise-node
+Downloading: [========>                                          ]  290.2kB/1.782MB
+Downloading: [>                                                  ]  1.073MB/355.3MB
+Downloading: [==================================================>]      34B/34B
+Extracting: [==============================>                    ]  18.35MB/29.72MB
+Downloading: [=======>                                           ]  50.18MB/355.3MB
+Downloading: [====>                                              ]  3.835MB/41.53MB
+Downloading: [===========>                                       ]  83.09MB/355.3MB
+Downloading: [==============>                                    ]  17.84MB/60.27MB
+Downloading: [==============================>                    ]  25.14MB/41.53MB
+Downloading: [================>                                  ]  114.9MB/355.3MB
+Downloading: [==============================>                    ]  36.19MB/60.27MB
+Downloading: [===================>                               ]  140.9MB/355.3MB
+Verifying Checksum: [=============================================>     ]  1.413MB/1.563MB
+Downloading: [=========================>                         ]  178.7MB/355.3MB
+Downloading: [============================>                      ]  203.5MB/355.3MB
+Downloading: [================================>                  ]  228.3MB/355.3MB
+Downloading: [===================================>               ]  253.7MB/355.3MB
+Downloading: [=======================================>           ]  278.5MB/355.3MB
+Downloading: [==========================================>        ]  301.1MB/355.3MB
+Downloading: [==============================================>    ]    327MB/355.3MB
+Downloading: [=================================================> ]  353.4MB/355.3MB
+Extracting: [>                                                  ]  557.1kB/355.3MB
+Extracting: [===>                                               ]  25.07MB/355.3MB
+Extracting: [======>                                            ]  47.91MB/355.3MB
+Extracting: [==========>                                        ]  72.42MB/355.3MB
+Extracting: [=============>                                     ]  93.03MB/355.3MB
+Extracting: [===============>                                   ]  113.1MB/355.3MB
+Extracting: [==================>                                ]  133.1MB/355.3MB
+Extracting: [====================>                              ]  148.2MB/355.3MB
+Extracting: [======================>                            ]    161MB/355.3MB
+Extracting: [========================>                          ]  176.6MB/355.3MB
+Extracting: [============================>                      ]    200MB/355.3MB
+Extracting: [===============================>                   ]  222.8MB/355.3MB
+Extracting: [=================================>                 ]  241.2MB/355.3MB
+Extracting: [=====================================>             ]  263.5MB/355.3MB
+Extracting: [=======================================>           ]  283.5MB/355.3MB
+Extracting: [===========================================>       ]  307.5MB/355.3MB
+Extracting: [==============================================>    ]  329.8MB/355.3MB
+Extracting: [================================================>  ]  343.7MB/355.3MB
+Extracting: [=================================================> ]  354.3MB/355.3MB
+Pull complete: [==================================================>]  355.3MB/355.3MB
+Extracting: [==================================================>]      34B/34B
+Pull complete: [==================================================>]      34B/34B
+Extracting: [==================================================>]     188B/188B
+Pull complete: [==================================================>]     188B/188B
+Pull complete: [==================================================>]  981.9kB/981.9kB
+Extracting: [==================================================>]  3.836kB/3.836kB
+Pull complete: [==================================================>]  3.836kB/3.836kB
+Extracting: [==================================================>]  2.878kB/2.878kB
+Pull complete: [==================================================>]  2.878kB/2.878kB
+Extracting: [====>                                              ]  3.834MB/41.53MB
+Extracting: [============================================>      ]  37.06MB/41.53MB
+Extracting: [=======>                                           ]  8.913MB/60.27MB
+Extracting: [===========================>                       ]  32.87MB/60.27MB
+Extracting: [=========================================>         ]  49.58MB/60.27MB
+Extracting: [================================================>  ]  58.49MB/60.27MB
+Pull complete: [==================================================>]     225B/225B
+Getting image metadata...
+Detected entrypoint user '1000:1000' with home directory "/home/coder"
+Creating workspace...
+Pruning images to free up disk...
+Starting up workspace...
+Creating "/home/coder/.coder" directory to host Coder assets...
+Envbox startup complete!
+Bootstrapping workspace...
+📦 Configuring MCP servers for Claude Code...
+Waiting for Claude CLI installation... (1/30)
+Running install script...
++ set -o nounset
++ MODULE_DIR_NAME=.claude-module
++ WORKDIR=/home/coder/projects
++ PRE_INSTALL_SCRIPT=
++ INSTALL_SCRIPT='#!/bin/bash
+set -o errexit
+set -o pipefail
+
+echo -n '\''IyEvYmluL2Jhc2gKCmlmIFsgLWYgIiRIT01FLy5iYXNocmMiIF07IHRoZW4KICBzb3VyY2UgIiRIT01FIi8uYmFzaHJjCmZpCgojIFNldCBzdHJpY3QgZXJyb3IgaGFuZGxpbmcgQUZURVIgc291cmNpbmcgYmFzaHJjIHRvIGF2b2lkIHVuYm91bmQgdmFyaWFibGUgZXJyb3JzIGZyb20gdXNlciBkb3RmaWxlcwpzZXQgLWV1byBwaXBlZmFpbAoKQk9MRD0nXDAzM1swOzFtJwoKY29tbWFuZF9leGlzdHMoKSB7CiAgY29tbWFuZCAtdiAiJDEiID4gL2Rldi9udWxsIDI+JjEKfQoKQVJHX0NMQVVERV9DT0RFX1ZFUlNJT049JHtBUkdfQ0xBVURFX0NPREVfVkVSU0lPTjotfQpBUkdfV09SS0RJUj0ke0FSR19XT1JLRElSOi0iJEhPTUUifQpBUkdfSU5TVEFMTF9DTEFVREVfQ09ERT0ke0FSR19JTlNUQUxMX0NMQVVERV9DT0RFOi19CkFSR19SRVBPUlRfVEFTS1M9JHtBUkdfUkVQT1JUX1RBU0tTOi10cnVlfQpBUkdfTUNQX0FQUF9TVEFUVVNfU0xVRz0ke0FSR19NQ1BfQVBQX1NUQVRVU19TTFVHOi19CkFSR19NQ1A9JChlY2hvIC1uICIke0FSR19NQ1A6LX0iIHwgYmFzZTY0IC1kKQpBUkdfQUxMT1dFRF9UT09MUz0ke0FSR19BTExPV0VEX1RPT0xTOi19CkFSR19ESVNBTExPV0VEX1RPT0xTPSR7QVJHX0RJU0FMTE9XRURfVE9PTFM6LX0KCmVjaG8gIi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tIgoKcHJpbnRmICJBUkdfQ0xBVURFX0NPREVfVkVSU0lPTjogJXNcbiIgIiRBUkdfQ0xBVURFX0NPREVfVkVSU0lPTiIKcHJpbnRmICJB
+chmod +x /tmp/install.sh
+ARG_CLAUDE_CODE_VERSION='\''latest'\'' \
+ARG_MCP_APP_STATUS_SLUG='\''ccw'\'' \
+ARG_INSTALL_CLAUDE_CODE='\''true'\'' \
+ARG_REPORT_TASKS='\''true'\'' \
+ARG_WORKDIR='\''/home/coder/projects'\'' \
+ARG_ALLOWED_TOOLS='\'''\'' \
+ARG_DISALLOWED_TOOLS='\'''\'' \
+ARG_MCP='\'''\'' \
+/tmp/install.sh'
++ INSTALL_AGENTAPI=true
++ AGENTAPI_VERSION=v0.10.0
++ START_SCRIPT='#!/bin/bash
+set -o errexit
+set -o pipefail
+echo -n '\''IyEvYmluL2Jhc2gKCmlmIFsgLWYgIiRIT01FLy5iYXNocmMiIF07IHRoZW4KICBzb3VyY2UgIiRIT01FIi8uYmFzaHJjCmZpCgojIFNldCBzdHJpY3QgZXJyb3IgaGFuZGxpbmcgQUZURVIgc291cmNpbmcgYmFzaHJjIHRvIGF2b2lkIHVuYm91bmQgdmFyaWFibGUgZXJyb3JzIGZyb20gdXNlciBkb3RmaWxlcwpzZXQgLWV1byBwaXBlZmFpbAoKZXhwb3J0IFBBVEg9IiRIT01FLy5sb2NhbC9iaW46JFBBVEgiCgpjb21tYW5kX2V4aXN0cygpIHsKICBjb21tYW5kIC12ICIkMSIgPiAvZGV2L251bGwgMj4mMQp9CgpBUkdfTU9ERUw9JHtBUkdfTU9ERUw6LX0KQVJHX1JFU1VNRV9TRVNTSU9OX0lEPSR7QVJHX1JFU1VNRV9TRVNTSU9OX0lEOi19CkFSR19DT05USU5VRT0ke0FSR19DT05USU5VRTotZmFsc2V9CkFSR19EQU5HRVJPVVNMWV9TS0lQX1BFUk1JU1NJT05TPSR7QVJHX0RBTkdFUk9VU0xZX1NLSVBfUEVSTUlTU0lPTlM6LX0KQVJHX1BFUk1JU1NJT05fTU9ERT0ke0FSR19QRVJNSVNTSU9OX01PREU6LX0KQVJHX1dPUktESVI9JHtBUkdfV09SS0RJUjotIiRIT01FIn0KQVJHX0FJX1BST01QVD0kKGVjaG8gLW4gIiR7QVJHX0FJX1BST01QVDotfSIgfCBiYXNlNjQgLWQpCkFSR19SRVBPUlRfVEFTS1M9JHtBUkdfUkVQT1JUX1RBU0tTOi10cnVlfQpBUkdfRU5BQkxFX0JPVU5EQVJZPSR7QVJHX0VOQUJMRV9CT1VOREFSWTotZmFsc2V9CkFSR19CT1VOREFSWV9WRVJTSU9OPSR7QVJHX0JPVU5EQVJZX1ZFUlNJT046LSJtYWluIn0KQVJH
+echo -n "IyBJZiBsYXN0U2Vzc2lvbklkIGlzIHByZXNlbnQgaW4gLmNsYXVkZS5qc29uLCBjbGF1ZGUgLS1jb250aW51ZSB3aWxsIHN0YXJ0IGEKIyBjb252ZXJzYXRpb24gc3RhcnRpbmcgZnJvbSB0aGF0IHNlc3Npb24uIFRoZSBwcm9ibGVtIGlzIHRoYXQgbGFzdFNlc3Npb25JZAojIGRvZXNuJ3QgYWx3YXlzIHBvaW50IHRvIHRoZSBsYXN0IHNlc3Npb24uIFRoZSBmaWVsZCBpcyB1cGRhdGVkIGJ5IGNsYXVkZSBvbmx5CiMgYXQgdGhlIHBvaW50IG9mIG5vcm1hbCBDTEkgZXhpdC4gSWYgQ2xhdWRlIGV4aXRzIHdpdGggYW4gZXJyb3IsIG9yIGlmIHRoZSB1c2VyCiMgcmVzdGFydHMgdGhlIENvZGVyIHdvcmtzcGFjZSwgbGFzdFNlc3Npb25JZCB3aWxsIGJlIHN0YWxlLCBhbmQgY2xhdWRlIC0tY29udGludWUKIyB3aWxsIHN0YXJ0IGZyb20gYW4gb2xkIHNlc3Npb24uCiMKIyBJZiBsYXN0U2Vzc2lvbklkIGlzIG1pc3NpbmcsIGNsYXVkZSBzZWVtcyB0byBhY2N1cmF0ZWx5IGZpZ3VyZSBvdXQgd2hlcmUgdG8KIyBzdGFydCB1c2luZyB0aGUgY29udmVyc2F0aW9uIGhpc3RvcnkgLSBldmVuIGlmIHRoZSBDTEkgcHJldmlvdXNseSBleGl0ZWQgd2l0aAojIGFuIGVycm9yLgojCiMgVGhpcyBzY3JpcHQgcmVtb3ZlcyB0aGUgbGFzdFNlc3Npb25JZCBmaWVsZCBmcm9tIC5jbGF1ZGUuanNvbi4KaWYgWyAkIyAtZXEgMCBdOyB0aGVuCiAgZWNobyAiTm8gd29ya2luZyBkaXJlY3RvcnkgcHJvdmlkZWQgLSBpdCBtdXN0IGJlIHRoZSBmaXJzdCBhcmd1bWV
+chmod +x /tmp/start.sh
+chmod +x /tmp/remove-last-session-id.sh
+
+ARG_MODEL='\''sonnet'\'' \
+ARG_RESUME_SESSION_ID='\'''\'' \
+ARG_CONTINUE='\''true'\'' \
+ARG_DANGEROUSLY_SKIP_PERMISSIONS='\''true'\'' \
+ARG_PERMISSION_MODE='\''bypassPermissions'\'' \
+ARG_WORKDIR='\''/home/coder/projects'\'' \
+ARG_AI_PROMPT='\'''\'' \
+ARG_REPORT_TASKS='\''true'\'' \
+ARG_ENABLE_BOUNDARY='\''false'\'' \
+ARG_BOUNDARY_VERSION='\''main'\'' \
+ARG_BOUNDARY_LOG_DIR='\''/tmp/boundary_logs'\'' \
+ARG_BOUNDARY_LOG_LEVEL='\''WARN'\'' \
+ARG_BOUNDARY_ADDITIONAL_ALLOWED_URLS='\'''\'' \
+ARG_BOUNDARY_PROXY_PORT='\''8087'\'' \
+ARG_ENABLE_BOUNDARY_PPROF='\''false'\'' \
+ARG_BOUNDARY_PPROF_PORT='\''6067'\'' \
+ARG_COMPILE_FROM_SOURCE='\''false'\'' \
+ARG_CODER_HOST='\''coder.xuperson.org'\'' \
+/tmp/start.sh'
++ WAIT_FOR_START_SCRIPT='#!/bin/bash
+set -o errexit
+set -o pipefail
+
+port=${1:-3284}
+
+# This script waits for the agentapi server to start on port 3284.
+# It considers the server started after 3 consecutive successful responses.
+
+agentapi_started=false
+
+echo "Waiting for agentapi server to start on port $port..."
+for i in $(seq 1 150); do
+  for j in $(seq 1 3); do
+    sleep 0.1
+    if curl -fs -o /dev/null "http://localhost:$port/status"; then
+      echo "agentapi response received ($j/3)"
+    else
+      echo "agentapi server not responding ($i/15)"
+      continue 2
+    fi
+  done
+  agentapi_started=true
+  break
+done
+
+if [ "$agentapi_started" != "true" ]; then
+  echo "Error: agentapi server did not start on port $port after 15 seconds."
+  exit 1
+fi
+
+echo "agentapi server started on port $port."'
++ POST_INSTALL_SCRIPT=
++ AGENTAPI_PORT=3284
++ AGENTAPI_CHAT_BASE_PATH=/@jxu002700/unimega.c38afab9-fa77-4b0e-90b7-5112309167e1/apps/ccw/chat
++ set +o nounset
++ module_path=/home/coder/.claude-module
++ mkdir -p /home/coder/.claude-module/scripts
++ '[' '!' -d /home/coder/projects ']'
++ '[' -n '' ']'
++ echo 'Running install script...'
++ echo -n '#!/bin/bash
+set -o errexit
+set -o pipefail
+
+echo -n '\''IyEvYmluL2Jhc2gKCmlmIFsgLWYgIiRIT01FLy5iYXNocmMiIF07IHRoZW4KICBzb3VyY2UgIiRIT01FIi8uYmFzaHJjCmZpCgojIFNldCBzdHJpY3QgZXJyb3IgaGFuZGxpbmcgQUZURVIgc291cmNpbmcgYmFzaHJjIHRvIGF2b2lkIHVuYm91bmQgdmFyaWFibGUgZXJyb3JzIGZyb20gdXNlciBkb3RmaWxlcwpzZXQgLWV1byBwaXBlZmFpbAoKQk9MRD0nXDAzM1swOzFtJwoKY29tbWFuZF9leGlzdHMoKSB7CiAgY29tbWFuZCAtdiAiJDEiID4gL2Rldi9udWxsIDI+JjEKfQoKQVJHX0NMQVVERV9DT0RFX1ZFUlNJT049JHtBUkdfQ0xBVURFX0NPREVfVkVSU0lPTjotfQpBUkdfV09SS0RJUj0ke0FSR19XT1JLRElSOi0iJEhPTUUifQpBUkdfSU5TVEFMTF9DTEFVREVfQ09ERT0ke0FSR19JTlNUQUxMX0NMQVVERV9DT0RFOi19CkFSR19SRVBPUlRfVEFTS1M9JHtBUkdfUkVQT1JUX1RBU0tTOi10cnVlfQpBUkdfTUNQX0FQUF9TVEFUVVNfU0xVRz0ke0FSR19NQ1BfQVBQX1NUQVRVU19TTFVHOi19CkFSR19NQ1A9JChlY2hvIC1uICIke0FSR19NQ1A6LX0iIHwgYmFzZTY0IC1kKQpBUkdfQUxMT1dFRF9UT09MUz0ke0FSR19BTExPV0VEX1RPT0xTOi19CkFSR19ESVNBTExPV0VEX1RPT0xTPSR7QVJHX0RJU0FMTE9XRURfVE9PTFM6LX0KCmVjaG8gIi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tIgoKcHJpbnRmICJBUkdfQ0xBVURFX0NPREVfVkVSU0lPTjogJXNcbiIgIiRBUkdfQ0xBVURFX0NPREVfVkVSU0lPTiIKcHJpbnRmICJB
+chmod +x /tmp/install.sh
+ARG_CLAUDE_CODE_VERSION='\''latest'\'' \
+ARG_MCP_APP_STATUS_SLUG='\''ccw'\'' \
+ARG_INSTALL_CLAUDE_CODE='\''true'\'' \
+ARG_REPORT_TASKS='\''true'\'' \
+ARG_WORKDIR='\''/home/coder/projects'\'' \
+ARG_ALLOWED_TOOLS='\'''\'' \
+ARG_DISALLOWED_TOOLS='\'''\'' \
+ARG_MCP='\'''\'' \
+/tmp/install.sh'
++ chmod +x /home/coder/.claude-module/install.sh
++ /home/coder/.claude-module/install.sh
++ tee /home/coder/.claude-module/install.log
+--------------------------------
+ARG_CLAUDE_CODE_VERSION: latest
+ARG_WORKDIR: /home/coder/projects
+ARG_INSTALL_CLAUDE_CODE: true
+ARG_REPORT_TASKS: true
+ARG_MCP_APP_STATUS_SLUG: ccw
+ARG_MCP: 
+ARG_ALLOWED_TOOLS: 
+ARG_DISALLOWED_TOOLS: 
+--------------------------------
+Installing Claude Code via official installer
+🚀 Starting Unified DevOps Workspace Setup...
+✓ Docker is available
+Client: Docker Engine - Community
+ Version:           28.5.1
+ API version:       1.51
+ Go version:        go1.24.8
+ Git commit:        e180ab8
+ Built:             Wed Oct  8 12:17:26 2025
+ OS/Arch:           linux/amd64
+ Context:           default
+
+Server: Docker Engine - Community
+ Engine:
+  Version:          28.5.1
+  API version:      1.51 (minimum version 1.24)
+  Go version:       go1.24.8
+  Git commit:       f8215cc
+  Built:            Wed Oct  8 12:17:26 2025
+  OS/Arch:          linux/amd64
+  Experimental:     false
+ containerd:
+  Version:          v1.7.28
+  GitCommit:        b98a3aace656320842a23f4a392a33f46af97866
+ runc:
+  Version:          1.3.0
+  GitCommit:        v1.3.0-0-g4ca628d1
+ docker-init:
+  Version:          0.19.0
+  GitCommit:        de40ad0
+⚙️ Installing Claude session management helpers...
+⚙️ Configuring bash aliases...
+✅ Workspace base setup complete!
+⏳ System packages, PM2, and AI tools are installing in parallel...
+🐳 Docker is ready - try: docker run hello-world
+Installed archive library to: /tmp/coder-script-data/751d30fd-e97f-43eb-a7fa-18d6bffb2f42/archive-lib.sh
+Installed create script to:   /tmp/coder-script-data/bin/coder-archive-create
+Installed extract script to:  /tmp/coder-script-data/bin/coder-archive-extract
++ set -o nounset
++ MODULE_DIR_NAME=.goose-module
++ WORKDIR=/home/coder/projects
++ PRE_INSTALL_SCRIPT=
++ INSTALL_SCRIPT='#!/bin/bash
+set -o errexit
+set -o pipefail
+
+echo -n '\''IyEvYmluL2Jhc2gKCiMgRnVuY3Rpb24gdG8gY2hlY2sgaWYgYSBjb21tYW5kIGV4aXN0cwpjb21tYW5kX2V4aXN0cygpIHsKICBjb21tYW5kIC12ICIkMSIgPiAvZGV2L251bGwgMj4mMQp9CgpzZXQgLW8gbm91bnNldAoKZWNobyAiLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0iCmVjaG8gInByb3ZpZGVyOiAkQVJHX1BST1ZJREVSIgplY2hvICJtb2RlbDogJEFSR19NT0RFTCIKZWNobyAiZ29vc2VfY29uZmlnOiAkQVJHX0dPT1NFX0NPTkZJRyIKZWNobyAiaW5zdGFsbDogJEFSR19JTlNUQUxMIgplY2hvICJnb29zZV92ZXJzaW9uOiAkQVJHX0dPT1NFX1ZFUlNJT04iCmVjaG8gIi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tIgoKc2V0ICtvIG5vdW5zZXQKCmlmIFsgIiR7QVJHX0lOU1RBTEx9IiA9ICJ0cnVlIiBdOyB0aGVuCiAgZWNobyAiSW5zdGFsbGluZyBHb29zZS4uLiIKICBwYXJzZWRfdmVyc2lvbj0iJHtBUkdfR09PU0VfVkVSU0lPTn0iCiAgaWYgWyAiJHtBUkdfR09PU0VfVkVSU0lPTn0iID0gInN0YWJsZSIgXTsgdGhlbgogICAgcGFyc2VkX3ZlcnNpb249IiIKICBmaQogIGN1cmwgLWZzU0wgaHR0cHM6Ly9naXRodWIuY29tL2Jsb2NrL2dvb3NlL3JlbGVhc2VzL2Rvd25sb2FkL3N0YWJsZS9kb3dubG9hZF9jbGkuc2ggfCBHT09TRV9WRVJTSU9OPSIke3BhcnNlZF92ZXJzaW9ufSIgQ09ORklHVVJFPWZhbHNlIGJhc2gKICBlY2hvICJHb29zZSBpbnN0YWxsZWQiCmVsc2UKICBlY2hvICJTa2lwcGlu
+chmod +x /tmp/install.sh
+
+ARG_PROVIDER='\''anthropic'\'' \
+ARG_MODEL='\''claude-3-5-sonnet-20241022'\'' \
+ARG_GOOSE_CONFIG="$(echo -n '\''ZXh0ZW5zaW9uczoKICBjb2RlcjoKICAgIGFyZ3M6CiAgICAtIGV4cAogICAgLSBtY3AKICAgIC0gc2VydmVyCiAgICBjbWQ6IGNvZGVyCiAgICBkZXNjcmlwdGlvbjogUmVwb3J0IEFMTCB0YXNrcyBhbmQgc3RhdHVzZXMgKGluIHByb2dyZXNzLCBkb25lLCBmYWlsZWQpIHlvdSBhcmUgd29ya2luZyBvbi4KICAgIGVuYWJsZWQ6IHRydWUKICAgIGVudnM6CiAgICAgIENPREVSX01DUF9BUFBfU1RBVFVTX1NMVUc6IGdvb3NlCiAgICAgIENPREVSX01DUF9BSV9BR0VOVEFQSV9VUkw6IGh0dHA6Ly9sb2NhbGhvc3Q6MzI4NAogICAgbmFtZTogQ29kZXIKICAgIHRpbWVvdXQ6IDMwMDAKICAgIHR5cGU6IHN0ZGlvCiAgZGV2ZWxvcGVyOgogICAgZGlzcGxheV9uYW1lOiBEZXZlbG9wZXIKICAgIGVuYWJsZWQ6IHRydWUKICAgIG5hbWU6IGRldmVsb3BlcgogICAgdGltZW91dDogMzAwCiAgICB0eXBlOiBidWlsdGluCg=='\'' | base64 -d)" \
+ARG_INSTALL='\''true'\'' \
+ARG_GOOSE_VERSION='\''stable'\'' \
+/tmp/install.sh'
++ INSTALL_AGENTAPI=true
++ AGENTAPI_VERSION=v0.10.0
++ START_SCRIPT='#!/bin/bash
+
+set -o errexit
+set -o pipefail
+
+command_exists() {
+  command -v "$1" > /dev/null 2>&1
+}
+
+if command_exists goose; then
+  GOOSE_CMD=goose
+elif [ -f "$HOME/.local/bin/goose" ]; then
+  GOOSE_CMD="$HOME/.local/bin/goose"
+else
+  echo "Error: Goose is not installed. Please enable install_goose or install it manually."
+  exit 1
+fi
+
+# this must be kept up to date with main.tf
+MODULE_DIR="$HOME/.goose-module"
+mkdir -p "$MODULE_DIR"
+
+if [ ! -z "$GOOSE_TASK_PROMPT" ]; then
+  echo "Starting with a prompt"
+  PROMPT="Review your goosehints. Every step of the way, report tasks to Coder with proper descriptions and statuses. Your task at hand: $GOOSE_TASK_PROMPT"
+  PROMPT_FILE="$MODULE_DIR/prompt.txt"
+  echo -n "$PROMPT" > "$PROMPT_FILE"
+  GOOSE_ARGS=(run --interactive --instructions "$PROMPT_FILE")
+else
+  echo "Starting without a prompt"
+  GOOSE_ARGS=()
+fi
+
+agentapi server --term-width 67 --term-height 1190 -- \
+  bash -c "$(printf '\''%q '\'' "$GOOSE_CMD" "${GOOSE_ARGS[@]}")"'
++ WAIT_FOR_START_SCRIPT='#!/bin/bash
+set -o errexit
+set -o pipefail
+
+port=${1:-3284}
+
+# This script waits for the agentapi server to start on port 3284.
+# It considers the server started after 3 consecutive successful responses.
+
+agentapi_started=false
+
+echo "Waiting for agentapi server to start on port $port..."
+for i in $(seq 1 150); do
+  for j in $(seq 1 3); do
+    sleep 0.1
+    if curl -fs -o /dev/null "http://localhost:$port/status"; then
+      echo "agentapi response received ($j/3)"
+    else
+      echo "agentapi server not responding ($i/15)"
+      continue 2
+    fi
+  done
+  agentapi_started=true
+  break
+done
+
+if [ "$agentapi_started" != "true" ]; then
+  echo "Error: agentapi server did not start on port $port after 15 seconds."
+  exit 1
+fi
+
+echo "agentapi server started on port $port."'
++ POST_INSTALL_SCRIPT=
++ AGENTAPI_PORT=3284
++ AGENTAPI_CHAT_BASE_PATH=/@jxu002700/unimega.c38afab9-fa77-4b0e-90b7-5112309167e1/apps/goose/chat
++ set +o nounset
++ module_path=/home/coder/.goose-module
++ mkdir -p /home/coder/.goose-module/scripts
++ '[' '!' -d /home/coder/projects ']'
++ '[' -n '' ']'
++ echo 'Running install script...'
++ echo -n '#!/bin/bash
+set -o errexit
+set -o pipefail
+
+echo -n '\''IyEvYmluL2Jhc2gKCiMgRnVuY3Rpb24gdG8gY2hlY2sgaWYgYSBjb21tYW5kIGV4aXN0cwpjb21tYW5kX2V4aXN0cygpIHsKICBjb21tYW5kIC12ICIkMSIgPiAvZGV2L251bGwgMj4mMQp9CgpzZXQgLW8gbm91bnNldAoKZWNobyAiLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0iCmVjaG8gInByb3ZpZGVyOiAkQVJHX1BST1ZJREVSIgplY2hvICJtb2RlbDogJEFSR19NT0RFTCIKZWNobyAiZ29vc2VfY29uZmlnOiAkQVJHX0dPT1NFX0NPTkZJRyIKZWNobyAiaW5zdGFsbDogJEFSR19JTlNUQUxMIgplY2hvICJnb29zZV92ZXJzaW9uOiAkQVJHX0dPT1NFX1ZFUlNJT04iCmVjaG8gIi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tIgoKc2V0ICtvIG5vdW5zZXQKCmlmIFsgIiR7QVJHX0lOU1RBTEx9IiA9ICJ0cnVlIiBdOyB0aGVuCiAgZWNobyAiSW5zdGFsbGluZyBHb29zZS4uLiIKICBwYXJzZWRfdmVyc2lvbj0iJHtBUkdfR09PU0VfVkVSU0lPTn0iCiAgaWYgWyAiJHtBUkdfR09PU0VfVkVSU0lPTn0iID0gInN0YWJsZSIgXTsgdGhlbgogICAgcGFyc2VkX3ZlcnNpb249IiIKICBmaQogIGN1cmwgLWZzU0wgaHR0cHM6Ly9naXRodWIuY29tL2Jsb2NrL2dvb3NlL3JlbGVhc2VzL2Rvd25sb2FkL3N0YWJsZS9kb3dubG9hZF9jbGkuc2ggfCBHT09TRV9WRVJTSU9OPSIke3BhcnNlZF92ZXJzaW9ufSIgQ09ORklHVVJFPWZhbHNlIGJhc2gKICBlY2hvICJHb29zZSBpbnN0YWxsZWQiCmVsc2UKICBlY2hvICJTa2lwcGlu
+chmod +x /tmp/install.sh
+
+ARG_PROVIDER='\''anthropic'\'' \
+ARG_MODEL='\''claude-3-5-sonnet-20241022'\'' \
+ARG_GOOSE_CONFIG="$(echo -n '\''ZXh0ZW5zaW9uczoKICBjb2RlcjoKICAgIGFyZ3M6CiAgICAtIGV4cAogICAgLSBtY3AKICAgIC0gc2VydmVyCiAgICBjbWQ6IGNvZGVyCiAgICBkZXNjcmlwdGlvbjogUmVwb3J0IEFMTCB0YXNrcyBhbmQgc3RhdHVzZXMgKGluIHByb2dyZXNzLCBkb25lLCBmYWlsZWQpIHlvdSBhcmUgd29ya2luZyBvbi4KICAgIGVuYWJsZWQ6IHRydWUKICAgIGVudnM6CiAgICAgIENPREVSX01DUF9BUFBfU1RBVFVTX1NMVUc6IGdvb3NlCiAgICAgIENPREVSX01DUF9BSV9BR0VOVEFQSV9VUkw6IGh0dHA6Ly9sb2NhbGhvc3Q6MzI4NAogICAgbmFtZTogQ29kZXIKICAgIHRpbWVvdXQ6IDMwMDAKICAgIHR5cGU6IHN0ZGlvCiAgZGV2ZWxvcGVyOgogICAgZGlzcGxheV9uYW1lOiBEZXZlbG9wZXIKICAgIGVuYWJsZWQ6IHRydWUKICAgIG5hbWU6IGRldmVsb3BlcgogICAgdGltZW91dDogMzAwCiAgICB0eXBlOiBidWlsdGluCg=='\'' | base64 -d)" \
+ARG_INSTALL='\''true'\'' \
+ARG_GOOSE_VERSION='\''stable'\'' \
+/tmp/install.sh'
++ chmod +x /home/coder/.goose-module/install.sh
++ /home/coder/.goose-module/install.sh
++ tee /home/coder/.goose-module/install.log
+Running install script...
+--------------------------------
+ARG_CLAUDE_CODE_VERSION: 
+ARG_WORKDIR: /home/coder/projects
+ARG_INSTALL_CLAUDE_CODE: 
+ARG_REPORT_TASKS: true
+ARG_MCP_APP_STATUS_SLUG: 
+ARG_MCP: 
+ARG_ALLOWED_TOOLS: 
+ARG_DISALLOWED_TOOLS: 
+--------------------------------
+Skipping Claude Code installation as per configuration.
+Configuring Claude Code to report tasks via Coder MCP...
+WARN: CLAUDE_API_KEY is not set.
+Wrote config to /home/coder/.claude.json
+Wrote CLAUDE.md to /home/coder/.claude/CLAUDE.md
++ '[' true = true ']'
++ echo 'Installing AgentAPI...'
+Installing AgentAPI...
+++ uname -m
++ arch=x86_64
++ '[' x86_64 = x86_64 ']'
++ binary_name=agentapi-linux-amd64
++ '[' v0.10.0 = latest ']'
++ download_url=https://github.com/coder/agentapi/releases/download/v0.10.0/agentapi-linux-amd64
++ curl --retry 5 --retry-delay 5 --fail --retry-all-errors -L -C - -o agentapi https://github.com/coder/agentapi/releases/download/v0.10.0/agentapi-linux-amd64
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+📋 Setting up Vibe Kanban...
+📦 Installing Vibe Kanban...
+Vibe Kanban install attempt 1/3...
+sudo: unable to resolve host workspacecvm: Name or service not known
+npm warn using --force Recommended protections disabled.
+📦 Installing system packages and CLIs...
+Installing base system packages...
+sudo: unable to resolve host workspacecvm: Name or service not known
+Get:1 https://download.docker.com/linux/ubuntu noble InRelease [48.5 kB]
+Get:2 https://dl.yarnpkg.com/debian stable InRelease
+Get:3 https://deb.nodesource.com/node_22.x nodistro InRelease [12.1 kB]
+Hit:4 http://archive.ubuntu.com/ubuntu noble InRelease
+Get:5 http://security.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+Get:6 https://download.docker.com/linux/ubuntu noble/stable amd64 Packages [43.8 kB]
+Get:7 http://archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+🎨 Setting up Claude Code UI...
+📦 Installing Claude Code UI...
+Claude Code UI install attempt 1/3...
+sudo: unable to resolve host workspacecvm: Name or service not known
+npm warn using --force Recommended protections disabled.
+[0;1mInstalling filebrowser 
+
+Downloading File Browser for linux/amd64...
+https://github.com/filebrowser/filebrowser/releases/download/v2.48.2/linux-amd64-filebrowser.tar.gz
+Fetching GitHub token...
+Fetching public key from Coder...
+Fetching public keys from GitHub...
+Failed to fetch Coder public SSH key with status code 404!
+{
+  "message": "Not Found",
+  "documentation_url": "https://docs.github.com/rest/users/keys#list-public-ssh-keys-for-the-authenticated-user",
+  "status": "404"
+}
+⚙️ Creating settings file...
+⚙️ Creating machine settings file...
+[0;1mInstalling code-server!
+📦 Installing PM2 process manager...
+PM2 install attempt 1/3...
+sudo: unable to resolve host workspacecvm: Name or service not known
+npm warn using --force Recommended protections disabled.
+Waiting for Claude CLI installation... (2/30)
+Get:8 https://deb.nodesource.com/node_22.x nodistro/main amd64 Packages [8,202 B]
+Get:9 http://security.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [2,722 kB]
+Get:10 http://archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+Get:11 https://ppa.launchpadcontent.net/git-core/ppa/ubuntu noble InRelease [24.3 kB]
+Waiting for Claude CLI installation... (3/30)
+Get:12 https://ppa.launchpadcontent.net/git-core/ppa/ubuntu noble/main amd64 Packages [4,043 B]
+Get:13 http://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1,942 kB]
+Waiting for Claude CLI installation... (4/30)
+Get:14 http://security.ubuntu.com/ubuntu noble-security/main amd64 Packages [1,651 kB]
+Get:15 http://security.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1,174 kB]
+Waiting for Claude CLI installation... (5/30)
+Get:16 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [2,012 kB]
+Waiting for Claude CLI installation... (6/30)
+Get:17 http://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [2,856 kB]
+Fetched 12.9 MB in 9s (1,368 kB/s)
+Waiting for Claude CLI installation... (7/30)
+Reading package lists...
+Waiting for Claude CLI installation... (8/30)
+
+added 133 packages in 14s
+
+13 packages are looking for funding
+  run `npm fund` for details
+npm notice
+npm notice New major version of npm available! 10.9.4 -> 11.6.3
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.6.3
+npm notice To update run: npm install -g npm@11.6.3
+npm notice
+✅ PM2 installed successfully
+W: https://dl.yarnpkg.com/debian/dists/stable/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
+sudo: unable to resolve host workspacecvm: Name or service not known
+
+                        -------------
+
+__/\\\\\\\\\\\\\____/\\\\____________/\\\\____/\\\\\\\\\_____
+ _\/\\\/////////\\\_\/\\\\\\________/\\\\\\__/\\\///////\\\___
+  _\/\\\_______\/\\\_\/\\\//\\\____/\\\//\\\_\///______\//\\\__
+   _\/\\\\\\\\\\\\\/__\/\\\\///\\\/\\\/_\/\\\___________/\\\/___
+    _\/\\\/////////____\/\\\__\///\\\/___\/\\\________/\\\//_____
+     _\/\\\_____________\/\\\____\///_____\/\\\_____/\\\//________
+      _\/\\\_____________\/\\\_____________\/\\\___/\\\/___________
+       _\/\\\_____________\/\\\_____________\/\\\__/\\\\\\\\\\\\\\\_
+        _\///______________\///______________\///__\///////////////__
+
+
+                          Runtime Edition
+
+        PM2 is a Production Process Manager for Node.js applications
+                     with a built-in Load Balancer.
+
+                Start and Daemonize any application:
+                $ pm2 start app.js
+
+                Load Balance 4 instances of api.js:
+                $ pm2 start api.js -i 4
+
+                Monitor in production:
+                $ pm2 monitor
+
+                Make pm2 auto-boot at server restart:
+                $ pm2 startup
+
+                To go further checkout:
+                http://pm2.io/
+
+
+                        -------------
+
+[PM2] Spawning PM2 daemon with pm2_home=/home/coder/.pm2
+[PM2] PM2 Successfully daemonized
+6.0.13
+Reading package lists...
+Waiting for Claude CLI installation... (9/30)
+Building dependency tree...
+Reading state information...
+curl is already the newest version (8.5.0-2ubuntu10.6).
+wget is already the newest version (1.21.4-1ubuntu4.1).
+jq is already the newest version (1.7.1-3ubuntu0.24.04.1).
+build-essential is already the newest version (12.10ubuntu1).
+python3-pip is already the newest version (24.0+dfsg-1ubuntu1.3).
+apt-transport-https is already the newest version (2.8.3).
+ca-certificates is already the newest version (20240203).
+gnupg is already the newest version (2.4.4-2ubuntu17.3).
+The following additional packages will be installed:
+  git-man libevent-core-2.1-7t64 libutempter0
+Suggested packages:
+  gettext-base git-doc git-email git-gui gitk gitweb git-cvs git-svn
+The following NEW packages will be installed:
+  libevent-core-2.1-7t64 libutempter0 tmux
+The following packages will be upgraded:
+  git git-man
+Waiting for Claude CLI installation... (10/30)
+2 upgraded, 3 newly installed, 0 to remove and 24 not upgraded.
+Need to get 10.0 MB of archives.
+After this operation, 2,009 kB of additional disk space will be used.
+Get:1 http://archive.ubuntu.com/ubuntu noble/main amd64 libevent-core-2.1-7t64 amd64 2.1.12-stable-9ubuntu2 [91.3 kB]
+Get:2 http://archive.ubuntu.com/ubuntu noble/main amd64 libutempter0 amd64 1.2.1-3build1 [9,606 B]
+Get:3 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 tmux amd64 3.4-1ubuntu0.1 [480 kB]
+Get:4 https://ppa.launchpadcontent.net/git-core/ppa/ubuntu noble/main amd64 git amd64 1:2.52.0-0ppa1~ubuntu24.04.1 [7,148 kB]
+Waiting for Claude CLI installation... (11/30)
+Waiting for Claude CLI installation... (12/30)
+
+added 2 packages in 22s
+npm notice
+npm notice New major version of npm available! 10.9.4 -> 11.6.3
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.6.3
+npm notice To update run: npm install -g npm@11.6.3
+npm notice
+Waiting for Claude CLI installation... (13/30)
+Waiting for Claude CLI installation... (14/30)
+  8 13.9M    8 1197k    0     0  1346k      0  0:00:10 --:--:--  0:00:10 1346k 31 13.9M   31 4557k    0     0  2423k      0  0:00:05  0:00:01  0:00:04 3387k 33 13.9M   33 4749k    0     0  1629k      0  0:00:08  0:00:02  0:00:06 1754k 33 13.9M   33 4829k    0     0  1242k      0  0:00:11  0:00:03  0:00:08 1211k 34 13.9M   34 4877k    0     0   971k      0  0:00:14  0:00:05  0:00:09  890k 35 13.9M   35 5037k    0     0   856k      0  0:00:16  0:00:05  0:00:11  768k 36 13.9M   36 5213k    0     0   753k      0  0:00:18  0:00:06  0:00:12  130k 37 13.9M   37 5325k    0     0   649k      0  0:00:21  0:00:08  0:00:13  108k 37 13.9M   37 5373k    0     0   602k      0  0:00:23  0:00:08  0:00:15  108k 38 13.9M   38 5533k    0     0   559k      0  0:00:25  0:00:09  0:00:16  134k 40 13.9M   40 5853k    0     0   537k      0  0:00:26  0:00:10  0:00:16  163k 42 13.9M   42 6077k    0     0   508k      0  0:00:28  0:00:11  0:00:17  171k 43 13.9M   43 6173k    0     0   479k      0  0:00:29  0:00:12  0:00:17  1
+Waiting for Claude CLI installation... (15/30)
++ chmod +x agentapi
++ sudo mv agentapi /usr/local/bin/agentapi
+sudo: unable to resolve host workspacecvm: Name or service not known
++ command_exists agentapi
++ command -v agentapi
++ echo -n '#!/bin/bash
+
+set -o errexit
+set -o pipefail
+
+command_exists() {
+  command -v "$1" > /dev/null 2>&1
+}
+
+if command_exists goose; then
+  GOOSE_CMD=goose
+elif [ -f "$HOME/.local/bin/goose" ]; then
+  GOOSE_CMD="$HOME/.local/bin/goose"
+else
+  echo "Error: Goose is not installed. Please enable install_goose or install it manually."
+  exit 1
+fi
+
+# this must be kept up to date with main.tf
+MODULE_DIR="$HOME/.goose-module"
+mkdir -p "$MODULE_DIR"
+
+if [ ! -z "$GOOSE_TASK_PROMPT" ]; then
+  echo "Starting with a prompt"
+  PROMPT="Review your goosehints. Every step of the way, report tasks to Coder with proper descriptions and statuses. Your task at hand: $GOOSE_TASK_PROMPT"
+  PROMPT_FILE="$MODULE_DIR/prompt.txt"
+  echo -n "$PROMPT" > "$PROMPT_FILE"
+  GOOSE_ARGS=(run --interactive --instructions "$PROMPT_FILE")
+else
+  echo "Starting without a prompt"
+  GOOSE_ARGS=()
+fi
+
+agentapi server --term-width 67 --term-height 1190 -- \
+  bash -c "$(printf '\''%q '\'' "$GOOSE_CMD" "${GOOSE_ARGS[@]}")"'
++ echo -n '#!/bin/bash
+set -o errexit
+set -o pipefail
+
+port=${1:-3284}
+
+# This script waits for the agentapi server to start on port 3284.
+# It considers the server started after 3 consecutive successful responses.
+
+agentapi_started=false
+
+echo "Waiting for agentapi server to start on port $port..."
+for i in $(seq 1 150); do
+  for j in $(seq 1 3); do
+    sleep 0.1
+    if curl -fs -o /dev/null "http://localhost:$port/status"; then
+      echo "agentapi response received ($j/3)"
+    else
+      echo "agentapi server not responding ($i/15)"
+      continue 2
+    fi
+  done
+  agentapi_started=true
+  break
+done
+
+if [ "$agentapi_started" != "true" ]; then
+  echo "Error: agentapi server did not start on port $port after 15 seconds."
+  exit 1
+fi
+
+echo "agentapi server started on port $port."'
++ chmod +x /home/coder/.goose-module/scripts/agentapi-start.sh
++ chmod +x /home/coder/.goose-module/scripts/agentapi-wait-for-start.sh
++ '[' -n '' ']'
++ export LANG=en_US.UTF-8
++ LANG=en_US.UTF-8
++ export LC_ALL=en_US.UTF-8
++ LC_ALL=en_US.UTF-8
++ cd /home/coder/projects
++ export AGENTAPI_CHAT_BASE_PATH=/@jxu002700/unimega.c38afab9-fa77-4b0e-90b7-5112309167e1/apps/goose/chat
++ AGENTAPI_CHAT_BASE_PATH=/@jxu002700/unimega.c38afab9-fa77-4b0e-90b7-5112309167e1/apps/goose/chat
++ export 'AGENTAPI_ALLOWED_HOSTS=*'
++ AGENTAPI_ALLOWED_HOSTS='*'
++ /home/coder/.goose-module/scripts/agentapi-wait-for-start.sh 3284
++ nohup /home/coder/.goose-module/scripts/agentapi-start.sh true 3284
+Waiting for agentapi server to start on port 3284...
+agentapi server not responding (1/15)
+agentapi server not responding (2/15)
+agentapi server not responding (3/15)
+agentapi server not responding (4/15)
+agentapi server not responding (5/15)
+agentapi server not responding (6/15)
+Extracting...
+agentapi server not responding (7/15)
+agentapi server not responding (8/15)
+agentapi server not responding (9/15)
+agentapi server not responding (10/15)
+Putting filemanager in /usr/local/bin (may require password)
+sudo: unable to resolve host workspacecvm: Name or service not known
+sudo: unable to resolve host workspacecvm: Name or service not known
+sudo: unable to resolve host workspacecvm: Name or service not known
+Successfully installed
+🥳 Installation complete! 
+
+👷 Starting filebrowser in background... 
+
+📂 Serving /home/coder at http://localhost:13339 
+
+Running 'filebrowser --noauth --root /home/coder --port 13339' 
+
+📝 Logs at /tmp/filebrowser.log 
+
+Waiting for Claude CLI installation... (16/30)
+agentapi server not responding (11/15)
+agentapi server not responding (12/15)
+agentapi server not responding (13/15)
+agentapi server not responding (14/15)
+agentapi server not responding (15/15)
+agentapi server not responding (16/15)
+agentapi server not responding (17/15)
+agentapi server not responding (18/15)
+agentapi server not responding (19/15)
+agentapi server not responding (20/15)
+agentapi server not responding (21/15)
+agentapi server not responding (22/15)
+agentapi server not responding (23/15)
+agentapi server not responding (24/15)
+agentapi server not responding (25/15)
+agentapi server not responding (26/15)
+✅ Vibe Kanban installed successfully
+Waiting for Claude CLI installation... (17/30)
+🚀 Starting Vibe Kanban on port 38402...
+agentapi server not responding (27/15)
+agentapi server not responding (28/15)
+agentapi server not responding (29/15)
+agentapi server not responding (30/15)
+agentapi server not responding (31/15)
+agentapi server not responding (32/15)
+agentapi server not responding (33/15)
+agentapi server not responding (34/15)
+agentapi server not responding (35/15)
+agentapi server not responding (36/15)
+[PM2] Starting /usr/bin/vibe-kanban in fork_mode (1 instance)
+[PM2] Done.
+┌────┬────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name           │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ vibe-kanban    │ default     │ N/A     │ fork    │ 3951     │ 0s     │ 0    │ online    │ 0%       │ 44.6mb   │ coder    │ disabled │
+└────┴────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[PM2] Saving current process list...
+[PM2] Successfully saved in /home/coder/.pm2/dump.pm2
+✅ Vibe Kanban setup complete!
+Waiting for Claude CLI installation... (18/30)
+agentapi server not responding (37/15)
+agentapi server not responding (38/15)
+agentapi server not responding (39/15)
+agentapi server not responding (40/15)
+agentapi server not responding (41/15)
+agentapi server not responding (42/15)
+agentapi server not responding (43/15)
+agentapi server not responding (44/15)
+agentapi server not responding (45/15)
+agentapi server not responding (46/15)
+agentapi server not responding (47/15)
+agentapi server not responding (48/15)
+agentapi server not responding (49/15)
+agentapi server not responding (50/15)
+agentapi server not responding (51/15)
+agentapi server not responding (52/15)
+agentapi server not responding (53/15)
+agentapi server not responding (54/15)
+agentapi server not responding (55/15)
+agentapi server not responding (56/15)
+agentapi server not responding (57/15)
+✅ Vibe Kanban is running
+│ 0  │ vibe-kanban    │ default     │ N/A     │ fork    │ 4272     │ 0s     │ 4    │ online    │ 0%       │ 267.4mb  │ coder    │ disabled │
+Waiting for Claude CLI installation... (19/30)
+agentapi server not responding (58/15)
+agentapi server not responding (59/15)
+agentapi server not responding (60/15)
+agentapi server not responding (61/15)
+agentapi server not responding (62/15)
+agentapi server not responding (63/15)
+agentapi server not responding (64/15)
+agentapi server not responding (65/15)
+Waiting for Claude CLI installation... (20/30)
+agentapi server not responding (66/15)
+agentapi server not responding (67/15)
+agentapi server not responding (68/15)
+agentapi server not responding (69/15)
+agentapi server not responding (70/15)
+agentapi server not responding (71/15)
+agentapi server not responding (72/15)
+agentapi server not responding (73/15)
+agentapi server not responding (74/15)
+agentapi server not responding (75/15)
+agentapi server not responding (76/15)
+agentapi server not responding (77/15)
+agentapi server not responding (78/15)
+agentapi server not responding (79/15)
+agentapi server not responding (80/15)
+agentapi server not responding (81/15)
+agentapi server not responding (82/15)
+agentapi server not responding (83/15)
+agentapi server not responding (84/15)
+npm warn deprecated are-we-there-yet@3.0.1: This package is no longer supported.
+Waiting for Claude CLI installation... (21/30)
+agentapi server not responding (85/15)
+agentapi server not responding (86/15)
+agentapi server not responding (87/15)
+agentapi server not responding (88/15)
+agentapi server not responding (89/15)
+agentapi server not responding (90/15)
+agentapi server not responding (91/15)
+agentapi server not responding (92/15)
+npm warn deprecated @npmcli/move-file@1.1.2: This functionality has been moved to @npmcli/fs
+npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+npm warn deprecated npmlog@6.0.2: This package is no longer supported.
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+npm warn deprecated gauge@4.0.4: This package is no longer supported.
+npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+agentapi server not responding (93/15)
+agentapi server not responding (94/15)
+agentapi server not responding (95/15)
+agentapi server not responding (96/15)
+agentapi server not responding (97/15)
+agentapi server not responding (98/15)
+agentapi server not responding (99/15)
+agentapi server not responding (100/15)
+Waiting for Claude CLI installation... (22/30)
+agentapi server not responding (101/15)
+agentapi server not responding (102/15)
+agentapi server not responding (103/15)
+agentapi server not responding (104/15)
+agentapi server not responding (105/15)
+agentapi server not responding (106/15)
+agentapi server not responding (107/15)
+agentapi server not responding (108/15)
+agentapi server not responding (109/15)
+Waiting for Claude CLI installation... (23/30)
+agentapi server not responding (110/15)
+agentapi server not responding (111/15)
+agentapi server not responding (112/15)
+agentapi server not responding (113/15)
+agentapi server not responding (114/15)
+agentapi server not responding (115/15)
+agentapi server not responding (116/15)
+agentapi server not responding (117/15)
+agentapi server not responding (118/15)
+agentapi server not responding (119/15)
+agentapi server not responding (120/15)
+agentapi server not responding (121/15)
+agentapi server not responding (122/15)
+agentapi server not responding (123/15)
+agentapi server not responding (124/15)
+agentapi server not responding (125/15)
+agentapi server not responding (126/15)
+agentapi server not responding (127/15)
+agentapi server not responding (128/15)
+agentapi server not responding (129/15)
+Waiting for Claude CLI installation... (24/30)
+agentapi server not responding (130/15)
+agentapi server not responding (131/15)
+agentapi server not responding (132/15)
+agentapi server not responding (133/15)
+agentapi server not responding (134/15)
+agentapi server not responding (135/15)
+agentapi server not responding (136/15)
+Waiting for Claude CLI installation... (25/30)
+agentapi server not responding (137/15)
+agentapi server not responding (138/15)
+agentapi server not responding (139/15)
+agentapi server not responding (140/15)
+agentapi server not responding (141/15)
+agentapi server not responding (142/15)
+agentapi server not responding (143/15)
+agentapi server not responding (144/15)
+agentapi server not responding (145/15)
+agentapi server not responding (146/15)
+agentapi server not responding (147/15)
+agentapi server not responding (148/15)
+agentapi server not responding (149/15)
+agentapi server not responding (150/15)
+Error: agentapi server did not start on port 3284 after 15 seconds.
+Waiting for Claude CLI installation... (26/30)
+Waiting for Claude CLI installation... (27/30)
+Waiting for Claude CLI installation... (28/30)
+
+added 454 packages in 55s
+Waiting for Claude CLI installation... (29/30)
+
+138 packages are looking for funding
+  run `npm fund` for details
+Waiting for Claude CLI installation... (30/30)
+⚠️  Claude CLI not found after waiting, skipping MCP configuration
+Setting up Claude Code...
+Get:5 https://ppa.launchpadcontent.net/git-core/ppa/ubuntu noble/main amd64 git-man all 1:2.52.0-0ppa1~ubuntu24.04.1 [2,303 kB]
+✅ Claude Code UI installed successfully
+🚀 Starting Claude Code UI on port 38401...
+[PM2] Starting /usr/bin/claude-code-ui in fork_mode (1 instance)
+[PM2] Done.
+┌────┬───────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name              │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼───────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 1  │ claude-code-ui    │ default     │ N/A     │ fork    │ 5716     │ 0s     │ 0    │ online    │ 0%       │ 21.8mb   │ coder    │ disabled │
+│ 0  │ vibe-kanban       │ default     │ N/A     │ fork    │ 0        │ 0      │ 15   │ errored   │ 0%       │ 0b       │ coder    │ disabled │
+└────┴───────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[PM2] Saving current process list...
+[PM2] Successfully saved in /home/coder/.pm2/dump.pm2
+✅ Claude Code UI started successfully!
+┌────┬───────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name              │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼───────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 1  │ claude-code-ui    │ default     │ N/A     │ fork    │ 5716     │ 0s     │ 0    │ online    │ 0%       │ 92.4mb   │ coder    │ disabled │
+│ 0  │ vibe-kanban       │ default     │ N/A     │ fork    │ 0        │ 0      │ 15   │ errored   │ 0%       │ 0b       │ coder    │ disabled │
+└────┴───────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+debconf: delaying package configuration, since apt-utils is not installed
+Fetched 10.0 MB in 1min 3s (159 kB/s)
+#=#=#                                                                          ##O#-#                                                                         ##O=#  #                                                                                                                                                  0.0%                                                                           0.1%                                                                           0.1%                                                                           0.2%                                                                           0.2%                                                                           0.2%                                                                           0.3%                                                                           0.3%                                                                           0.3%                                                               
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 29030 files and directories currently installed.)
