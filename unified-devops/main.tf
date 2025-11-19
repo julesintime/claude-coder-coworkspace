@@ -46,6 +46,66 @@ variable "namespace" {
 # WORKSPACE PARAMETERS
 # ========================================
 
+# Workspace presets - these define all parameter values for each preset
+# See https://coder.com/docs/admin/templates/extending-templates/parameters#workspace-presets
+data "coder_workspace_preset" "nano" {
+  name = "Nano (1CPU/2GB/20GB)"
+  parameters = {
+    preset                 = "nano"
+    container_image        = "codercom/enterprise-node:ubuntu"
+    preview_port           = "3000"
+    dotfiles_repo_url      = "https://github.com/xoojulian/coder-dotfiles.git"
+    git_clone_repo_url     = ""
+    git_clone_path         = "/home/coder/projects/repo"
+    enable_filebrowser     = "true"
+    enable_kasmvnc         = "false"
+    enable_claude_code_ui  = "true"
+    enable_vibe_kanban     = "true"
+    claude_code_ui_port    = "38401"
+    vibe_kanban_port       = "38402"
+    gitea_url              = ""
+  }
+}
+
+data "coder_workspace_preset" "mini" {
+  name    = "Mini (2CPU/8GB/50GB)"
+  default = true
+  parameters = {
+    preset                 = "mini"
+    container_image        = "codercom/enterprise-node:ubuntu"
+    preview_port           = "3000"
+    dotfiles_repo_url      = "https://github.com/xoojulian/coder-dotfiles.git"
+    git_clone_repo_url     = ""
+    git_clone_path         = "/home/coder/projects/repo"
+    enable_filebrowser     = "true"
+    enable_kasmvnc         = "false"
+    enable_claude_code_ui  = "true"
+    enable_vibe_kanban     = "true"
+    claude_code_ui_port    = "38401"
+    vibe_kanban_port       = "38402"
+    gitea_url              = ""
+  }
+}
+
+data "coder_workspace_preset" "mega" {
+  name = "Mega (8CPU/32GB/200GB)"
+  parameters = {
+    preset                 = "mega"
+    container_image        = "codercom/enterprise-node:ubuntu"
+    preview_port           = "3000"
+    dotfiles_repo_url      = "https://github.com/xoojulian/coder-dotfiles.git"
+    git_clone_repo_url     = ""
+    git_clone_path         = "/home/coder/projects/repo"
+    enable_filebrowser     = "true"
+    enable_kasmvnc         = "false"
+    enable_claude_code_ui  = "true"
+    enable_vibe_kanban     = "true"
+    claude_code_ui_port    = "38401"
+    vibe_kanban_port       = "38402"
+    gitea_url              = ""
+  }
+}
+
 data "coder_parameter" "preset" {
   name         = "preset"
   display_name = "Workspace Preset"
@@ -786,14 +846,14 @@ resource "coder_script" "install_system_packages" {
       sleep 2
     done
 
-    # CONSOLIDATED: Install ALL system packages in ONE apt operation to avoid lock conflicts
-    echo "Installing base system packages..."
+    # NOTE: codercom/enterprise-node:ubuntu already has: curl, wget, git, jq, build-essential,
+    # python3-pip, ca-certificates, docker, Node.js, npm, yarn
+    # We only install what's MISSING from the base image
+
+    echo "Installing additional system packages..."
     sudo apt-get update
     sudo apt-get install -y --fix-missing \
-      curl wget git jq \
-      build-essential \
-      python3-pip \
-      apt-transport-https ca-certificates gnupg \
+      apt-transport-https gnupg \
       tmux \
       || echo "⚠️ Some packages failed, continuing..."
 
