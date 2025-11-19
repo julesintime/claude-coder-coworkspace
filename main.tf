@@ -945,20 +945,13 @@ resource "coder_script" "claude_code_ui" {
 
     echo "🎨 Setting up Claude Code UI..."
 
-    # Verify Claude CLI is available (depends_on ensures claude-code module completed)
-    if ! command -v claude >/dev/null 2>&1; then
-      echo "⚠️ Claude CLI not found, skipping Claude Code UI setup"
-      exit 0
-    fi
-    echo "✓ Claude CLI found"
-
     # Install PM2 if not present
     if ! command -v pm2 >/dev/null 2>&1; then
       echo "📦 Installing PM2..."
       sudo npm install -g pm2 || { echo "❌ PM2 installation failed"; exit 1; }
     fi
 
-    # Install Claude Code UI globally
+    # Install Claude Code UI globally (standalone npm package)
     echo "📦 Installing Claude Code UI..."
     sudo npm install -g @siteboon/claude-code-ui || { echo "❌ Claude Code UI installation failed"; exit 1; }
 
@@ -1283,14 +1276,14 @@ resource "coder_app" "vibe_kanban" {
   slug         = "vibe-kanban"
   display_name = "Vibe Kanban"
   icon         = "/icon/workspace.svg"
-  url          = "http://localhost:${data.coder_parameter.vibe_kanban_port.value}"
+  url          = "http://localhost:${data.coder_parameter.vibe_kanban_port.value + 1}"
   share        = "owner"  # Only workspace owner can access
   subdomain    = true
   open_in      = "tab"
   order        = 2
 
   healthcheck {
-    url       = "http://localhost:${data.coder_parameter.vibe_kanban_port.value}/"
+    url       = "http://localhost:${data.coder_parameter.vibe_kanban_port.value + 1}/"
     interval  = 5
     threshold = 20
   }
