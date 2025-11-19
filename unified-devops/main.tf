@@ -55,6 +55,24 @@ data "coder_parameter" "preset" {
   icon         = "/icon/gear.svg"
   mutable      = true
   ephemeral    = false  # Persist preset selection across restarts
+
+  option {
+    name        = "nano"
+    description = "Nano: 1 CPU, 2GB RAM, 20GB disk"
+    value       = "nano"
+  }
+
+  option {
+    name        = "mini"
+    description = "Mini: 2 CPU, 8GB RAM, 50GB disk"
+    value       = "mini"
+  }
+
+  option {
+    name        = "mega"
+    description = "Mega: 8 CPU, 32GB RAM, 200GB disk"
+    value       = "mega"
+  }
 }
 
 data "coder_parameter" "container_image" {
@@ -198,7 +216,7 @@ data "coder_parameter" "enable_filebrowser" {
   type         = "bool"
   default      = "true"
   mutable      = true
-  ephemeral    = false  # Persist UI toggle across restarts
+  ephemeral    = true  # Use default without prompting
 }
 
 data "coder_parameter" "enable_kasmvnc" {
@@ -208,7 +226,7 @@ data "coder_parameter" "enable_kasmvnc" {
   type         = "bool"
   default      = "false"
   mutable      = true
-  ephemeral    = false  # Persist UI toggle across restarts
+  ephemeral    = true  # Use default without prompting
 }
 
 data "coder_parameter" "enable_claude_code_ui" {
@@ -218,7 +236,7 @@ data "coder_parameter" "enable_claude_code_ui" {
   type         = "bool"
   default      = "true"
   mutable      = true
-  ephemeral    = false  # Persist UI toggle across restarts
+  ephemeral    = true  # Use default without prompting
 }
 
 data "coder_parameter" "enable_vibe_kanban" {
@@ -228,7 +246,7 @@ data "coder_parameter" "enable_vibe_kanban" {
   type         = "bool"
   default      = "true"
   mutable      = true
-  ephemeral    = false  # Persist UI toggle across restarts
+  ephemeral    = true  # Use default without prompting
 }
 
 data "coder_parameter" "claude_code_ui_port" {
@@ -1108,50 +1126,13 @@ module "goose" {
 # DEVELOPER TOOL MODULES
 # ========================================
 
-# Dotfiles - manual implementation to avoid module prompts
-resource "coder_script" "dotfiles" {
-  agent_id     = coder_agent.main.id
-  display_name = "Dotfiles"
-  icon         = "/icon/dotfiles.svg"
-  script = <<-EOT
-    #!/bin/bash
-    set -e
-
-    DOTFILES_URI="${data.coder_parameter.dotfiles_repo_url.value}"
-
-    if [ -n "$DOTFILES_URI" ]; then
-      echo "📦 Cloning dotfiles from $DOTFILES_URI..."
-
-      # Remove old dotfiles if they exist
-      rm -rf ~/.dotfiles
-
-      # Clone dotfiles
-      git clone "$DOTFILES_URI" ~/.dotfiles
-
-      # Run install script if it exists
-      if [ -f ~/.dotfiles/install.sh ]; then
-        echo "🔧 Running dotfiles install script..."
-        cd ~/.dotfiles && bash install.sh
-      else
-        # Create symlinks for all dotfiles
-        echo "🔗 Creating symlinks..."
-        for file in ~/.dotfiles/.*; do
-          if [ -f "$file" ] && [ "$(basename "$file")" != "." ] && [ "$(basename "$file")" != ".." ] && [ "$(basename "$file")" != ".git" ]; then
-            ln -sf "$file" ~/
-            echo "✓ Linked $(basename "$file")"
-          fi
-        done
-      fi
-
-      echo "✅ Dotfiles installed!"
-    else
-      echo "⏭️  No dotfiles URL configured, skipping..."
-    fi
-  EOT
-  run_on_start = true
-  run_on_stop  = false
-  start_blocks_login = false
-  timeout = 300
+# Dotfiles - official module from Coder registry
+module "dotfiles" {
+  count                = data.coder_workspace.me.start_count
+  source               = "registry.coder.com/modules/dotfiles/coder"
+  version              = "1.0.19"
+  agent_id             = coder_agent.main.id
+  default_dotfiles_uri = data.coder_parameter.dotfiles_repo_url.value
 }
 
 # Git Clone (conditional on repo URL)
