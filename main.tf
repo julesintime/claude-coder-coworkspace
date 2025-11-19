@@ -451,10 +451,24 @@ data "coder_parameter" "setup_script" {
     fi
 
     # PM2 Process Manager (for Claude Code UI and Vibe Kanban)
+    # Install with retry logic to handle network issues
     if ! command -v pm2 >/dev/null 2>&1; then
       echo "📦 Installing PM2 process manager..."
       if command -v npm >/dev/null 2>&1; then
-        sudo npm install -g pm2 || echo "⚠️ PM2 installation failed, skipping..."
+        for i in 1 2 3; do
+          echo "PM2 install attempt $i/3..."
+          if sudo npm install -g pm2 --force 2>&1; then
+            echo "✅ PM2 installed successfully"
+            break
+          else
+            echo "⚠️ PM2 install attempt $i failed"
+            if [ $i -eq 3 ]; then
+              echo "❌ PM2 installation failed after 3 attempts"
+            else
+              sleep 5
+            fi
+          fi
+        done
       fi
     fi
 
@@ -924,8 +938,8 @@ resource "coder_script" "configure_mcp_servers" {
   run_on_stop  = false
   # Ensure the Claude Code module is installed before configuring MCP servers
   depends_on = [module.claude-code]
-  # This config is important for Claude agents; block login until configured
-  start_blocks_login = true
+  # MCP is nice-to-have, don't block login - user can configure later if needed
+  start_blocks_login = false
   timeout = 300
 }
 
@@ -945,15 +959,39 @@ resource "coder_script" "claude_code_ui" {
 
     echo "🎨 Setting up Claude Code UI..."
 
-    # Install PM2 if not present
+    # Verify PM2 is installed (should be from setup script)
     if ! command -v pm2 >/dev/null 2>&1; then
-      echo "📦 Installing PM2..."
-      sudo npm install -g pm2 || { echo "❌ PM2 installation failed"; exit 1; }
+      echo "⚠️  PM2 not found, waiting for setup script..."
+      for i in {1..30}; do
+        sleep 2
+        if command -v pm2 >/dev/null 2>&1; then
+          echo "✓ PM2 now available"
+          break
+        fi
+      done
+      if ! command -v pm2 >/dev/null 2>&1; then
+        echo "❌ PM2 still not available after waiting"
+        exit 1
+      fi
     fi
 
-    # Install Claude Code UI globally (standalone npm package)
+    # Install Claude Code UI with retry logic for network issues
     echo "📦 Installing Claude Code UI..."
-    sudo npm install -g @siteboon/claude-code-ui || { echo "❌ Claude Code UI installation failed"; exit 1; }
+    for i in 1 2 3; do
+      echo "Claude Code UI install attempt $i/3..."
+      if sudo npm install -g @siteboon/claude-code-ui --force 2>&1; then
+        echo "✅ Claude Code UI installed successfully"
+        break
+      else
+        echo "⚠️ Install attempt $i failed"
+        if [ $i -eq 3 ]; then
+          echo "❌ Claude Code UI installation failed after 3 attempts"
+          exit 1
+        else
+          sleep 10
+        fi
+      fi
+    done
 
     # Create data directory for persistence
     mkdir -p /home/coder/.claude-code-ui
@@ -977,7 +1015,7 @@ resource "coder_script" "claude_code_ui" {
   depends_on = [module.claude-code]
   # UI is non-blocking for login (doesn't need to block user access)
   start_blocks_login = false
-  timeout = 300
+  timeout = 600  # Increased for slow networks and retries
 }
 
 # Vibe Kanban - AI agent orchestration board
@@ -992,11 +1030,36 @@ resource "coder_script" "vibe_kanban" {
 
     echo "📋 Setting up Vibe Kanban..."
 
-    # Install PM2 if not present
+    # Verify PM2 is installed (should be from setup script)
     if ! command -v pm2 >/dev/null 2>&1; then
-      echo "📦 Installing PM2..."
-      sudo npm install -g pm2 || { echo "❌ PM2 installation failed"; exit 1; }
+      echo "⚠️  PM2 not found, waiting for setup script..."
+      for i in {1..30}; do
+        sleep 2
+        if command -v pm2 >/dev/null 2>&1; then
+          echo "✓ PM2 now available"
+          break
+        fi
+      done
+      if ! command -v pm2 >/dev/null 2>&1; then
+        echo "❌ PM2 still not available after waiting"
+        exit 1
+      fi
     fi
+
+    # Install Vibe Kanban with retry logic
+    echo "📦 Installing Vibe Kanban..."
+    for i in 1 2 3; do
+      echo "Vibe Kanban install attempt $i/3..."
+      if npm install -g vibe-kanban --force 2>&1; then
+        echo "✅ Vibe Kanban installed successfully"
+        break
+      else
+        echo "⚠️ Install attempt $i failed"
+        if [ $i -lt 3 ]; then
+          sleep 10
+        fi
+      fi
+    done
 
     # Create data directory for persistence
     mkdir -p /home/coder/.vibe-kanban
@@ -1005,16 +1068,15 @@ resource "coder_script" "vibe_kanban" {
     pm2 delete vibe-kanban 2>/dev/null || true
 
     # Start Vibe Kanban with PM2
-    # Using npx which should include pre-built binaries
     echo "🚀 Starting Vibe Kanban on port ${data.coder_parameter.vibe_kanban_port.value}..."
     cd /home/coder/.vibe-kanban
     FRONTEND_PORT=${data.coder_parameter.vibe_kanban_port.value} \
     BACKEND_PORT=$((${data.coder_parameter.vibe_kanban_port.value} + 1)) \
     HOST=127.0.0.1 \
-    pm2 start "npx vibe-kanban" --name vibe-kanban
+    pm2 start "npx vibe-kanban" --name vibe-kanban || echo "⚠️  Vibe Kanban start failed, may retry on next startup"
 
     pm2 save
-    echo "✅ Vibe Kanban started successfully!"
+    echo "✅ Vibe Kanban setup complete!"
     pm2 list
   EOT
   run_on_start = true
@@ -1023,7 +1085,7 @@ resource "coder_script" "vibe_kanban" {
   depends_on = [module.claude-code]
   # Non-blocking for login; kanban is optional UI
   start_blocks_login = false
-  timeout = 300
+  timeout = 600  # Increased for slow networks and retries
 }
 
 # ========================================
@@ -1088,9 +1150,10 @@ resource "coder_script" "install_goose" {
   EOT
   run_on_start = true
   run_on_stop  = false
-  # Ensure the agent is ready before installing Goose; block login while installing
+  # Ensure the agent is ready before installing Goose
   depends_on = [coder_agent.main]
-  start_blocks_login = true
+  # Goose is optional, don't block login
+  start_blocks_login = false
   timeout = 300
 }
 
@@ -1182,7 +1245,7 @@ module "code-server" {
   order    = 1
 
   settings = {
-    "workbench.colorTheme" : "Default Dark Modern"
+    "window.autoDetectColorScheme" : true
     "editor.formatOnSave" : true
     "files.autoSave" : "afterDelay"
   }
@@ -1191,10 +1254,9 @@ module "code-server" {
   # Note: GitHub extensions (copilot, copilot-chat) and C++ tools not available in code-server marketplace
   extensions = [
     "ms-python.python",
-    "hashicorp.terraform",
-    "ms-kubernetes-tools.vscode-kubernetes-tools",
     "ms-azuretools.vscode-docker",
-    "eamodio.gitlens"
+    "johnpapa.vscode-peacock",
+    "coder.coder-remote"
   ]
 }
 
