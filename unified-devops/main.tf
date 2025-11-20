@@ -1082,6 +1082,7 @@ module "claude-code" {
 # NOTE: The claude-code module internally creates coder_ai_task via its agentapi submodule
 # No need to create a separate coder_ai_task resource here
 
+
 # MCP Server Configuration Script
 # Runs AFTER Claude Code module installs the CLI
 resource "coder_script" "configure_mcp_servers" {
@@ -1271,10 +1272,27 @@ resource "coder_script" "vibe_kanban" {
 # AI TOOL MODULES
 # ========================================
 
+# ========================================
+# AI TOOL MODULE SELECTION
+# ========================================
+# IMPORTANT: Only ONE AI tool module can be enabled at a time because each creates
+# a coder_ai_task resource and Coder only allows ONE coder_ai_task per template.
+# Priority order: Codex > Copilot > Gemini
+# This ensures the most capable AI tool is used when multiple API keys are provided.
+
+locals {
+  # Determine which AI tool to enable (only one can have coder_ai_task)
+  enable_codex   = data.coder_parameter.openai_api_key.value != ""
+  enable_copilot = !local.enable_codex && data.coder_parameter.github_token.value != ""
+  enable_gemini  = !local.enable_codex && !local.enable_copilot && data.coder_parameter.gemini_api_key.value != ""
+  # If no API keys provided, enable Codex anyway (will show error when user tries to use it)
+  enable_default = !local.enable_codex && !local.enable_copilot && !local.enable_gemini
+}
+
 # OpenAI Codex CLI
-# Always create module so app appears in panel (module handles empty API key gracefully)
+# Enabled when: OpenAI API key is provided (highest priority)
 module "codex" {
-  count          = data.coder_workspace.me.start_count
+  count          = (local.enable_codex || local.enable_default) ? data.coder_workspace.me.start_count : 0
   source         = "registry.coder.com/coder-labs/codex/coder"
   version        = "2.1.0"
   agent_id       = coder_agent.main.id
@@ -1284,9 +1302,9 @@ module "codex" {
 }
 
 # GitHub Copilot CLI
-# Always create module so app appears in panel (module handles empty token gracefully)
+# Enabled when: GitHub token is provided AND OpenAI key is NOT provided
 module "copilot" {
-  count        = data.coder_workspace.me.start_count
+  count        = local.enable_copilot ? data.coder_workspace.me.start_count : 0
   source       = "registry.coder.com/coder-labs/copilot/coder"
   version      = "0.2.2"
   agent_id     = coder_agent.main.id
@@ -1296,11 +1314,9 @@ module "copilot" {
 }
 
 # Google Gemini CLI
-# Always create module so app appears in panel (module handles empty API key gracefully)
-# NOTE: Gemini module creates its own "AI Prompt" parameter which will NOT conflict
-# because when gemini_api_key is empty, users configure prompts via gemini's own parameter
+# Enabled when: Gemini API key is provided AND no OpenAI/GitHub keys provided
 module "gemini" {
-  count          = data.coder_workspace.me.start_count
+  count          = local.enable_gemini ? data.coder_workspace.me.start_count : 0
   source         = "registry.coder.com/coder-labs/gemini/coder"
   version        = "1.0.0"
   agent_id       = coder_agent.main.id
