@@ -1079,8 +1079,16 @@ module "claude-code" {
   claude_code_oauth_token = local.use_oauth_token ? data.coder_parameter.claude_oauth_token.value : ""
 }
 
-# NOTE: The claude-code module internally creates coder_ai_task via its agentapi submodule
-# No need to create a separate coder_ai_task resource here
+# Coder Tasks Integration
+# Only ONE coder_ai_task resource can exist per template
+# This enables Coder Tasks UI for Claude Code
+resource "coder_ai_task" "main" {
+  count = data.coder_workspace.me.start_count
+
+  sidebar_app {
+    id = module.claude-code[0].task_app_id
+  }
+}
 
 
 # MCP Server Configuration Script
