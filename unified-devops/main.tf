@@ -142,7 +142,7 @@ data "coder_parameter" "container_image" {
   description  = "Docker image to use for the workspace (runs inside Envbox)"
   default      = "codercom/enterprise-node:ubuntu"
   mutable      = true
-  ephemeral    = true  # Use default without prompting
+  ephemeral    = false  # Set via preset to avoid prompting
 }
 
 data "coder_parameter" "preview_port" {
@@ -152,7 +152,7 @@ data "coder_parameter" "preview_port" {
   type         = "number"
   default      = "3000"
   mutable      = true
-  ephemeral    = true  # Use default without prompting
+  ephemeral    = false  # Set via preset to avoid prompting
 }
 
 # ========================================
@@ -216,7 +216,7 @@ data "coder_parameter" "gitea_url" {
   type         = "string"
   default      = ""
   mutable      = true
-  ephemeral    = true  # Use default without prompting
+  ephemeral    = false  # Set via preset to avoid prompting
 }
 
 data "coder_parameter" "gitea_token" {
@@ -246,7 +246,7 @@ data "coder_parameter" "dotfiles_repo_url" {
   type         = "string"
   default      = "https://github.com/xoojulian/coder-dotfiles.git"
   mutable      = true
-  ephemeral    = true  # Use default without prompting
+  ephemeral    = false  # Set via preset to avoid prompting
 }
 
 data "coder_parameter" "git_clone_repo_url" {
@@ -256,7 +256,7 @@ data "coder_parameter" "git_clone_repo_url" {
   type         = "string"
   default      = ""
   mutable      = true
-  ephemeral    = true  # Use default without prompting
+  ephemeral    = false  # Set via preset to avoid prompting
 }
 
 data "coder_parameter" "git_clone_path" {
@@ -266,7 +266,7 @@ data "coder_parameter" "git_clone_path" {
   type         = "string"
   default      = "/home/coder/projects/repo"
   mutable      = true
-  ephemeral    = true  # Use default without prompting
+  ephemeral    = false  # Set via preset to avoid prompting
 }
 
 data "coder_parameter" "enable_filebrowser" {
@@ -276,7 +276,7 @@ data "coder_parameter" "enable_filebrowser" {
   type         = "bool"
   default      = "true"
   mutable      = true
-  ephemeral    = true  # Use default without prompting
+  ephemeral    = false  # Set via preset to avoid prompting
 }
 
 data "coder_parameter" "enable_kasmvnc" {
@@ -286,7 +286,7 @@ data "coder_parameter" "enable_kasmvnc" {
   type         = "bool"
   default      = "false"
   mutable      = true
-  ephemeral    = true  # Use default without prompting
+  ephemeral    = false  # Set via preset to avoid prompting
 }
 
 data "coder_parameter" "enable_claude_code_ui" {
@@ -296,7 +296,7 @@ data "coder_parameter" "enable_claude_code_ui" {
   type         = "bool"
   default      = "true"
   mutable      = true
-  ephemeral    = true  # Use default without prompting
+  ephemeral    = false  # Set via preset to avoid prompting
 }
 
 data "coder_parameter" "enable_vibe_kanban" {
@@ -306,7 +306,7 @@ data "coder_parameter" "enable_vibe_kanban" {
   type         = "bool"
   default      = "true"
   mutable      = true
-  ephemeral    = true  # Use default without prompting
+  ephemeral    = false  # Set via preset to avoid prompting
 }
 
 data "coder_parameter" "claude_code_ui_port" {
@@ -316,7 +316,7 @@ data "coder_parameter" "claude_code_ui_port" {
   type         = "number"
   default      = "38401"
   mutable      = true
-  ephemeral    = true  # Use default without prompting
+  ephemeral    = false  # Set via preset to avoid prompting
 }
 
 data "coder_parameter" "vibe_kanban_port" {
@@ -326,7 +326,7 @@ data "coder_parameter" "vibe_kanban_port" {
   type         = "number"
   default      = "38402"
   mutable      = true
-  ephemeral    = true  # Use default without prompting
+  ephemeral    = false  # Set via preset to avoid prompting
 }
 
 # ========================================
