@@ -1125,35 +1125,38 @@ resource "coder_script" "vibe_kanban" {
         exit 1
       fi
       echo "Waiting for PM2... ($i/60)"
-      sleep 10
+      sleep 2
+    done
+
+    # Install Vibe Kanban globally with retry logic
+    echo "📦 Installing Vibe Kanban..."
+    for i in 1 2 3; do
+      echo "Vibe Kanban install attempt $i/3..."
+      if sudo npm install -g vibe-kanban --force 2>&1; then
+        echo "✅ Vibe Kanban installed successfully"
+        break
+      else
+        echo "⚠️ Install attempt $i failed"
+        if [ $i -eq 3 ]; then
+          echo "❌ Vibe Kanban installation failed after 3 attempts"
+          exit 1
+        else
+          sleep 10
+        fi
+      fi
     done
 
     # Create data directory for persistence
     mkdir -p /home/coder/.vibe-kanban
-    cd /home/coder/.vibe-kanban
 
     # Stop existing instance if running
     pm2 delete vibe-kanban 2>/dev/null || true
 
-    # Create a start script for PM2 to execute
-    echo "🚀 Creating Vibe Kanban start script..."
-    cat > /home/coder/.vibe-kanban/start.sh << 'SCRIPT'
-#!/bin/bash
-export BACKEND_PORT=${VIBE_PORT}
-export HOST=0.0.0.0
-exec npx -y vibe-kanban
-SCRIPT
-    chmod +x /home/coder/.vibe-kanban/start.sh
-
     # Start with PM2
     echo "🚀 Starting Vibe Kanban on port ${data.coder_parameter.vibe_kanban_port.value}..."
-    VIBE_PORT=${data.coder_parameter.vibe_kanban_port.value} \
-    pm2 start /home/coder/.vibe-kanban/start.sh \
-      --name vibe-kanban \
-      --interpreter bash
-
-    # Wait a moment for PM2 to register the process
-    sleep 2
+    BACKEND_PORT=${data.coder_parameter.vibe_kanban_port.value} \
+    HOST=0.0.0.0 \
+    pm2 start vibe-kanban --name vibe-kanban
 
     pm2 save
     echo "✅ Vibe Kanban started successfully!"
