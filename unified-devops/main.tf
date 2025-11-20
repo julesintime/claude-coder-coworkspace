@@ -1285,7 +1285,7 @@ module "codex" {
   version          = ">= 2.0"
   agent_id         = coder_agent.main.id
   openai_api_key   = data.coder_parameter.openai_api_key.value
-  folder           = "/home/coder/projects"
+  workdir          = "/home/coder/projects"
   ai_prompt        = data.coder_parameter.unified_ai_prompt.value
   install_agentapi = false
   agentapi_version = "latest"
@@ -1311,7 +1311,7 @@ module "gemini" {
   version          = ">= 1.0"
   agent_id         = coder_agent.main.id
   gemini_api_key   = data.coder_parameter.gemini_api_key.value
-  folder           = "/home/coder/projects"
+  workdir          = "/home/coder/projects"
   install_agentapi = false
   agentapi_version = "latest"
 }
@@ -1322,7 +1322,7 @@ module "goose" {
   source           = "registry.coder.com/coder/goose/coder"
   version          = ">= 3.0"
   agent_id         = coder_agent.main.id
-  folder           = "/home/coder/projects"
+  workdir          = "/home/coder/projects"
   install_goose    = true
   goose_provider   = "anthropic"
   goose_model      = "claude-3-5-sonnet-20241022"
