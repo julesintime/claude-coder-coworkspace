@@ -1288,6 +1288,7 @@ module "codex" {
   folder           = "/home/coder/projects"
   ai_prompt        = data.coder_parameter.unified_ai_prompt.value
   install_agentapi = false
+  agentapi_version = "latest"
 }
 
 # GitHub Copilot CLI
@@ -1300,6 +1301,7 @@ module "copilot" {
   workdir          = "/home/coder/projects"
   ai_prompt        = data.coder_parameter.unified_ai_prompt.value
   install_agentapi = false
+  agentapi_version = "latest"
 }
 
 # Google Gemini CLI
@@ -1311,6 +1313,7 @@ module "gemini" {
   gemini_api_key   = data.coder_parameter.gemini_api_key.value
   folder           = "/home/coder/projects"
   install_agentapi = false
+  agentapi_version = "latest"
 }
 
 # Goose AI Agent
@@ -1324,6 +1327,7 @@ module "goose" {
   goose_provider   = "anthropic"
   goose_model      = "claude-3-5-sonnet-20241022"
   install_agentapi = false
+  agentapi_version = "latest"
 }
 
 # ========================================
