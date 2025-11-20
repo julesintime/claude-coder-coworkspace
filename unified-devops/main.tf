@@ -1311,7 +1311,7 @@ module "gemini" {
   version          = ">= 1.0"
   agent_id         = coder_agent.main.id
   gemini_api_key   = data.coder_parameter.gemini_api_key.value
-  workdir          = "/home/coder/projects"
+  folder           = "/home/coder/projects"
   install_agentapi = false
   agentapi_version = "latest"
 }
