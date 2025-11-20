@@ -52,6 +52,9 @@ data "coder_workspace_preset" "nano" {
   name = "Nano (1CPU/2GB/20GB)"
   parameters = {
     preset                = "nano"
+    cpu_override          = "auto"
+    memory_override       = "auto"
+    disk_override         = "auto"
     container_image       = "codercom/enterprise-node:ubuntu"
     preview_port          = "3000"
     git_clone_repo_url    = ""
@@ -71,6 +74,9 @@ data "coder_workspace_preset" "mini" {
   default = true
   parameters = {
     preset                = "mini"
+    cpu_override          = "auto"
+    memory_override       = "auto"
+    disk_override         = "auto"
     container_image       = "codercom/enterprise-node:ubuntu"
     preview_port          = "3000"
     git_clone_repo_url    = ""
@@ -89,6 +95,9 @@ data "coder_workspace_preset" "mega" {
   name = "Mega (16CPU/32GB/200GB)"
   parameters = {
     preset                = "mega"
+    cpu_override          = "auto"
+    memory_override       = "auto"
+    disk_override         = "auto"
     container_image       = "codercom/enterprise-node:ubuntu"
     preview_port          = "3000"
     git_clone_repo_url    = ""
@@ -532,7 +541,7 @@ locals {
       disk   = 50
     }
     mega = {
-      cpu    = 8
+      cpu    = 16
       memory = 32
       disk   = 200
     }
