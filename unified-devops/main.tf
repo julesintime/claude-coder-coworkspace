@@ -1059,22 +1059,28 @@ module "claude-code" {
   source  = "registry.coder.com/coder/claude-code/coder"
   version = "~> 4.0" # Use latest 4.x version, fallback to 3.x if unavailable
 
-  agent_id      = coder_agent.main.id
-  workdir       = "/home/coder/projects"
-  order         = 999
-  ai_prompt     = data.coder_parameter.unified_ai_prompt.value  # Use unified prompt
-  system_prompt = data.coder_parameter.system_prompt.value
-  model               = "sonnet"
-  permission_mode     = "bypassPermissions"
-  post_install_script = ""  # Empty - we'll use a separate script for MCP setup
+  agent_id                     = coder_agent.main.id
+  workdir                      = "/home/coder/projects"
+  order                        = 999
+  ai_prompt                    = data.coder_parameter.unified_ai_prompt.value
+  system_prompt                = data.coder_parameter.system_prompt.value
+  model                        = "sonnet"
+  permission_mode              = "bypassPermissions"
+  post_install_script          = ""
   dangerously_skip_permissions = "true"
   # Authentication (optional - Claude Code works without it)
   claude_api_key          = local.use_api_key ? data.coder_parameter.claude_api_key.value : ""
   claude_code_oauth_token = local.use_oauth_token ? data.coder_parameter.claude_oauth_token.value : ""
+  # API Endpoint (optional - for custom Anthropic-compatible endpoints)
+  claude_api_endpoint = data.coder_parameter.claude_api_endpoint.value != "" ? data.coder_parameter.claude_api_endpoint.value : null
 }
 
-# NOTE: Gemini module uses agentapi v1.0.0 which ALWAYS creates coder_ai_task
-# We use gemini's coder_ai_task for Coder Tasks integration
+# Coder Tasks Integration - use Claude Code as the task interface
+resource "coder_ai_task" "main" {
+  count = data.coder_workspace.me.start_count
+
+  app_id = module.claude-code[0].task_app_id
+}
 
 # MCP Server Configuration Script
 # Runs AFTER Claude Code module installs the CLI
@@ -1273,14 +1279,13 @@ resource "coder_script" "vibe_kanban" {
 # Google Gemini CLI
 # Always create module so app appears in panel (module handles empty API key gracefully)
 module "gemini" {
-  count          = data.coder_workspace.me.start_count
-  source         = "registry.coder.com/coder-labs/gemini/coder"
-  version        = "1.0.0"
-  agent_id       = coder_agent.main.id
-  gemini_api_key = data.coder_parameter.gemini_api_key.value
-  folder         = "/home/coder/projects"
-  # This module uses agentapi v1.0.0 which ALWAYS creates coder_ai_task (for Coder Tasks)
-  depends_on = [module.claude-code]
+  count            = data.coder_workspace.me.start_count
+  source           = "registry.coder.com/coder-labs/gemini/coder"
+  version          = "1.0.0"
+  agent_id         = coder_agent.main.id
+  gemini_api_key   = data.coder_parameter.gemini_api_key.value
+  folder           = "/home/coder/projects"
+  install_agentapi = false  # Try to disable agentapi (may not work with v1.0.0)
 }
 
 # Goose AI Agent
