@@ -775,7 +775,6 @@ resource "coder_agent" "main" {
 resource "coder_env" "claude_api_key" {
   count    = local.use_api_key ? 1 : 0
   agent_id = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
   name     = "CLAUDE_API_KEY"
   value    = data.coder_parameter.claude_api_key.value
 }
@@ -784,7 +783,6 @@ resource "coder_env" "claude_api_key" {
 resource "coder_env" "claude_oauth_token" {
   count    = local.use_oauth_token ? 1 : 0
   agent_id = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
   name     = "CLAUDE_CODE_OAUTH_TOKEN"
   value    = data.coder_parameter.claude_oauth_token.value
 }
@@ -792,7 +790,6 @@ resource "coder_env" "claude_oauth_token" {
 # Claude system prompt
 resource "coder_env" "claude_system_prompt" {
   agent_id = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
   name     = "CLAUDE_CODE_SYSTEM_PROMPT"
   value    = data.coder_parameter.system_prompt.value
 }
@@ -801,7 +798,6 @@ resource "coder_env" "claude_system_prompt" {
 resource "coder_env" "gitea_url" {
   count    = local.has_gitea_config ? 1 : 0
   agent_id = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
   name     = "GITEA_URL"
   value    = data.coder_parameter.gitea_url.value
 }
@@ -809,7 +805,6 @@ resource "coder_env" "gitea_url" {
 resource "coder_env" "gitea_token" {
   count    = local.has_gitea_config ? 1 : 0
   agent_id = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
   name     = "GITEA_TOKEN"
   value    = data.coder_parameter.gitea_token.value
 }
@@ -821,7 +816,6 @@ resource "coder_env" "gitea_token" {
 # Install system packages FIRST - blocks login to prevent race conditions
 resource "coder_script" "install_system_packages" {
   agent_id     = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
   display_name = "Install System Packages"
   icon         = "/icon/memory.svg"
   script = <<-EOT
@@ -898,7 +892,6 @@ resource "coder_script" "install_system_packages" {
 # Install PM2 AFTER system packages - also blocks login
 resource "coder_script" "install_pm2" {
   agent_id     = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
   display_name = "Install PM2"
   icon         = "/icon/code.svg"
   script = <<-EOT
@@ -960,7 +953,6 @@ module "claude-code" {
   version = "~> 4.0" # Use latest 4.x version, fallback to 3.x if unavailable
 
   agent_id            = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
   workdir             = "/home/coder/projects"
   order               = 999
   ai_prompt           = data.coder_task.me.prompt  # Use task prompt, not parameter
@@ -981,7 +973,6 @@ module "claude-code" {
 # Runs AFTER Claude Code module installs the CLI
 resource "coder_script" "configure_mcp_servers" {
   agent_id     = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
   display_name = "Configure MCP Servers"
   icon         = "/icon/docker.svg"
   script = <<-EOT
@@ -1036,7 +1027,6 @@ resource "coder_script" "configure_mcp_servers" {
 resource "coder_script" "claude_code_ui" {
   count        = data.coder_parameter.enable_claude_code_ui.value ? 1 : 0
   agent_id     = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
   display_name = "Claude Code UI"
   icon         = "/icon/code.svg"
   script = <<-EOT
@@ -1092,7 +1082,6 @@ resource "coder_script" "claude_code_ui" {
 resource "coder_script" "vibe_kanban" {
   count        = data.coder_parameter.enable_vibe_kanban.value ? 1 : 0
   agent_id     = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
   display_name = "Vibe Kanban"
   icon         = "/icon/code.svg"
   script = <<-EOT
@@ -1155,7 +1144,6 @@ module "codex" {
   source         = "registry.coder.com/coder-labs/codex/coder"
   version        = "2.1.0"
   agent_id       = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
   openai_api_key = data.coder_parameter.openai_api_key.value
   folder         = "/home/coder/projects"
 }
@@ -1168,7 +1156,6 @@ module "goose" {
   source         = "registry.coder.com/coder/goose/coder"
   version        = "3.0.0"
   agent_id       = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
   folder         = "/home/coder/projects"
   install_goose  = true  # Explicitly enable goose installation
   goose_provider = "anthropic"
@@ -1203,7 +1190,6 @@ module "git-clone" {
   source   = "registry.coder.com/coder/git-clone/coder"
   version  = "1.0.12"
   agent_id = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
   url      = data.coder_parameter.git_clone_repo_url.value
   base_dir = "/home/coder"
 }
@@ -1214,7 +1200,6 @@ module "github-upload-public-key" {
   source   = "registry.coder.com/coder/github-upload-public-key/coder"
   version  = "1.0.31"
   agent_id = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
 }
 
 # ========================================
@@ -1227,7 +1212,6 @@ module "filebrowser" {
   source   = "registry.coder.com/coder/filebrowser/coder"
   version  = "1.0.8"
   agent_id = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
   folder   = "/home/coder"
 }
 
@@ -1237,7 +1221,6 @@ module "kasmvnc" {
   source               = "registry.coder.com/coder/kasmvnc/coder"
   version              = "1.2.5"
   agent_id             = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
   desktop_environment  = "xfce"
 }
 
@@ -1247,7 +1230,6 @@ module "archive" {
   source   = "registry.coder.com/coder-labs/archive/coder"
   version  = "0.0.1"
   agent_id = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
 }
 
 # ========================================
@@ -1262,7 +1244,6 @@ module "code-server" {
   version = "~> 1.0"
 
   agent_id = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
   order    = 1
 
   settings = {
@@ -1288,7 +1269,6 @@ module "cursor" {
   source   = "registry.coder.com/coder/cursor/coder"
   version  = "~> 1.0"
   agent_id = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
 }
 
 # Windsurf IDE
@@ -1297,7 +1277,6 @@ module "windsurf" {
   source   = "registry.coder.com/coder/windsurf/coder"
   version  = "~> 1.0"
   agent_id = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
 }
 
 # JetBrains IDEs - DISABLED for automated workspace creation
@@ -1308,7 +1287,6 @@ module "jetbrains" {
   source     = "registry.coder.com/coder/jetbrains/coder"
   version    = "~> 1.0"
   agent_id   = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
   agent_name = "main"
   folder     = "/home/coder/projects"
 }
@@ -1320,7 +1298,6 @@ module "jetbrains" {
 # Application preview
 resource "coder_app" "preview" {
   agent_id     = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
   slug         = "preview"
   display_name = "App Preview"
   icon         = "${data.coder_workspace.me.access_url}/emojis/1f50e.png"
@@ -1341,7 +1318,6 @@ resource "coder_app" "preview" {
 resource "coder_app" "claude_code_ui" {
   count        = data.coder_parameter.enable_claude_code_ui.value ? 1 : 0
   agent_id     = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
   slug         = "claude-code-ui"
   display_name = "Claude Code UI"
   icon         = "/icon/code.svg"
@@ -1362,7 +1338,6 @@ resource "coder_app" "claude_code_ui" {
 resource "coder_app" "vibe_kanban" {
   count        = data.coder_parameter.enable_vibe_kanban.value ? 1 : 0
   agent_id     = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
   slug         = "vibe-kanban"
   display_name = "Vibe Kanban"
   icon         = "/icon/workspace.svg"
