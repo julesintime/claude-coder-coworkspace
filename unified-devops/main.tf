@@ -1286,6 +1286,7 @@ module "gemini" {
   gemini_api_key = data.coder_parameter.gemini_api_key.value
   folder         = "/home/coder/projects"
   # This module uses agentapi v1.0.0 which ALWAYS creates coder_ai_task (for Coder Tasks)
+  depends_on = [module.claude-code]
 }
 
 # Goose AI Agent
@@ -1302,6 +1303,7 @@ module "goose" {
   goose_model      = "claude-3-5-sonnet-20241022"
   agentapi_version = "v0.11.0"  # Use agentapi v2.x which respects install_agentapi parameter
   install_agentapi = false      # Disable to avoid coder_ai_task conflict
+  depends_on       = [module.gemini]
 }
 
 # ========================================
