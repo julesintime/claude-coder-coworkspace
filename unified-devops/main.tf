@@ -366,9 +366,10 @@ data "coder_parameter" "ai_prompt" {
   type        = "string"
   name        = "AI Prompt"
   default     = ""
-  description = "Initial prompt for AI agents on workspace startup"
+  description = "Write a prompt for Claude Code (supports Coder Tasks)"
   mutable     = true
-  ephemeral   = true
+  # NOTE: ephemeral must be false for Coder Tasks to work properly
+  # Tasks require persistent parameters to display in the UI
 }
 
 data "coder_parameter" "setup_script" {
