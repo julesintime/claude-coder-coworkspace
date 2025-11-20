@@ -1275,46 +1275,14 @@ resource "coder_script" "vibe_kanban" {
 # ========================================
 # ADDITIONAL AI TOOLS (NOT FOR CODER TASKS)
 # ========================================
-# IMPORTANT: Only Claude Code creates coder_ai_task (for Coder Tasks feature).
-# Other AI tools use install_agentapi=false to disable task integration.
+# IMPORTANT: Only Claude Code and Goose create coder_ai_task (for Coder Tasks feature).
+# Codex, Copilot, and Gemini modules are DISABLED because their agentapi v1.x submodules
+# ALWAYS create coder_ai_task even with install_agentapi=false, causing conflicts.
 
-# OpenAI Codex CLI
-module "codex" {
-  count            = data.coder_workspace.me.start_count
-  source           = "registry.coder.com/coder-labs/codex/coder"
-  version          = ">= 2.0"
-  agent_id         = coder_agent.main.id
-  openai_api_key   = data.coder_parameter.openai_api_key.value
-  workdir          = "/home/coder/projects"
-  ai_prompt        = data.coder_parameter.unified_ai_prompt.value
-  install_agentapi = false
-  agentapi_version = "v0.11.0"
-}
-
-# GitHub Copilot CLI
-module "copilot" {
-  count            = data.coder_workspace.me.start_count
-  source           = "registry.coder.com/coder-labs/copilot/coder"
-  version          = ">= 0.2"
-  agent_id         = coder_agent.main.id
-  github_token     = data.coder_parameter.github_token.value
-  workdir          = "/home/coder/projects"
-  ai_prompt        = data.coder_parameter.unified_ai_prompt.value
-  install_agentapi = false
-  agentapi_version = "v0.11.0"
-}
-
-# Google Gemini CLI
-module "gemini" {
-  count            = data.coder_workspace.me.start_count
-  source           = "registry.coder.com/coder-labs/gemini/coder"
-  version          = ">= 1.0"
-  agent_id         = coder_agent.main.id
-  gemini_api_key   = data.coder_parameter.gemini_api_key.value
-  folder           = "/home/coder/projects"
-  install_agentapi = false
-  agentapi_version = "v0.11.0"
-}
+# NOTE: Codex, Copilot, and Gemini modules DISABLED
+# These modules use agentapi v1.x which doesn't respect install_agentapi=false
+# and always creates coder_ai_task, conflicting with Claude Code's Coder Tasks.
+# Waiting for module updates to agentapi v2.x before re-enabling.
 
 # Goose AI Agent
 module "goose" {
