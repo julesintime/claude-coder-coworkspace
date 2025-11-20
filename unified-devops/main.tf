@@ -236,13 +236,6 @@ data "coder_parameter" "openai_api_key" {
   ephemeral    = true
 }
 
-  display_name = "Dotfiles Repository URL"
-  description  = "Git repository URL for your dotfiles (includes tmux mouse config)"
-  type         = "string"
-  default      = "https://github.com/xoojulian/coder-dotfiles.git"
-  mutable      = true
-  ephemeral    = false  # Set via preset to avoid prompting
-}
 
 data "coder_parameter" "git_clone_repo_url" {
   name         = "git_clone_repo_url"
