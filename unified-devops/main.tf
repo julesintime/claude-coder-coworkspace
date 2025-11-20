@@ -1174,14 +1174,43 @@ module "goose" {
 # DEVELOPER TOOL MODULES
 # ========================================
 
-# Dotfiles - official module from Coder registry
-module "dotfiles" {
-  # Module uses its own dotfiles_uri parameter with default
-  count                = data.coder_workspace.me.start_count
-  source               = "registry.coder.com/modules/dotfiles/coder"
-  version              = "1.0.19"
-  agent_id             = coder_agent.main.id
-  default_dotfiles_uri = "https://github.com/xoojulian/coder-dotfiles.git"
+# Dotfiles - custom script (module has prompting issues with presets)
+resource "coder_script" "dotfiles" {
+  agent_id     = coder_agent.main.id
+  display_name = "Dotfiles"
+  icon         = "/icon/dotfiles.svg"
+  script = <<-EOT
+    #!/bin/bash
+    set -e
+
+    # Use hardcoded dotfiles URL since module prompts despite defaults
+    DOTFILES_URI="https://github.com/xoojulian/coder-dotfiles.git"
+
+    echo "📦 Cloning dotfiles from $DOTFILES_URI..."
+    rm -rf ~/.dotfiles
+    git clone "$DOTFILES_URI" ~/.dotfiles
+
+    # Run install script if it exists
+    if [ -f ~/.dotfiles/install.sh ]; then
+      echo "🔧 Running dotfiles install script..."
+      cd ~/.dotfiles && bash install.sh
+    else
+      # Create symlinks for all dotfiles
+      echo "🔗 Creating symlinks..."
+      for file in ~/.dotfiles/.*; do
+        if [ -f "$file" ] && [ "$(basename "$file")" != "." ] && [ "$(basename "$file")" != ".." ] && [ "$(basename "$file")" != ".git" ]; then
+          ln -sf "$file" ~/
+          echo "✓ Linked $(basename "$file")"
+        fi
+      done
+    fi
+
+    echo "✅ Dotfiles installed!"
+  EOT
+  run_on_start       = true
+  run_on_stop        = false
+  start_blocks_login = false
+  timeout            = 300
 }
 
 # Git Clone (conditional on repo URL)
