@@ -1273,69 +1273,63 @@ resource "coder_script" "vibe_kanban" {
 # ========================================
 
 # ========================================
-# AI TOOL MODULE SELECTION
+# ADDITIONAL AI TOOLS (NOT FOR CODER TASKS)
 # ========================================
-# IMPORTANT: Only ONE AI tool module can be enabled at a time because each creates
-# a coder_ai_task resource and Coder only allows ONE coder_ai_task per template.
-# Priority order: Codex > Copilot > Gemini
-# This ensures the most capable AI tool is used when multiple API keys are provided.
-
-locals {
-  # Determine which AI tool to enable (only one can have coder_ai_task)
-  enable_codex   = data.coder_parameter.openai_api_key.value != ""
-  enable_copilot = !local.enable_codex && data.coder_parameter.github_token.value != ""
-  enable_gemini  = !local.enable_codex && !local.enable_copilot && data.coder_parameter.gemini_api_key.value != ""
-  # If no API keys provided, enable Codex anyway (will show error when user tries to use it)
-  enable_default = !local.enable_codex && !local.enable_copilot && !local.enable_gemini
-}
+# IMPORTANT: Only Claude Code creates coder_ai_task (for Coder Tasks feature).
+# The other AI tools (Codex, Copilot, Gemini) appear in the workspace panel
+# as coder_app resources but do NOT create coder_ai_task (install_agentapi=false).
+# This ensures ONLY Claude Code integrates with Coder Tasks UI.
 
 # OpenAI Codex CLI
-# Enabled when: OpenAI API key is provided (highest priority)
+# Always create so it appears in panel (module handles empty API key gracefully)
 module "codex" {
-  count          = (local.enable_codex || local.enable_default) ? data.coder_workspace.me.start_count : 0
-  source         = "registry.coder.com/coder-labs/codex/coder"
-  version        = "2.1.0"
-  agent_id       = coder_agent.main.id
-  openai_api_key = data.coder_parameter.openai_api_key.value
-  folder         = "/home/coder/projects"
-  ai_prompt      = data.coder_parameter.unified_ai_prompt.value  # Pass unified prompt
+  count            = data.coder_workspace.me.start_count
+  source           = "registry.coder.com/coder-labs/codex/coder"
+  version          = "2.1.0"
+  agent_id         = coder_agent.main.id
+  openai_api_key   = data.coder_parameter.openai_api_key.value
+  folder           = "/home/coder/projects"
+  ai_prompt        = data.coder_parameter.unified_ai_prompt.value
+  install_agentapi = false  # CRITICAL: Only Claude Code should create coder_ai_task
 }
 
 # GitHub Copilot CLI
-# Enabled when: GitHub token is provided AND OpenAI key is NOT provided
+# Always create so it appears in panel (module handles empty token gracefully)
 module "copilot" {
-  count        = local.enable_copilot ? data.coder_workspace.me.start_count : 0
-  source       = "registry.coder.com/coder-labs/copilot/coder"
-  version      = "0.2.2"
-  agent_id     = coder_agent.main.id
-  github_token = data.coder_parameter.github_token.value
-  workdir      = "/home/coder/projects"
-  ai_prompt    = data.coder_parameter.unified_ai_prompt.value  # Pass unified prompt
+  count            = data.coder_workspace.me.start_count
+  source           = "registry.coder.com/coder-labs/copilot/coder"
+  version          = "0.2.2"
+  agent_id         = coder_agent.main.id
+  github_token     = data.coder_parameter.github_token.value
+  workdir          = "/home/coder/projects"
+  ai_prompt        = data.coder_parameter.unified_ai_prompt.value
+  install_agentapi = false  # CRITICAL: Only Claude Code should create coder_ai_task
 }
 
 # Google Gemini CLI
-# Enabled when: Gemini API key is provided AND no OpenAI/GitHub keys provided
+# Always create so it appears in panel (module handles empty API key gracefully)
 module "gemini" {
-  count          = local.enable_gemini ? data.coder_workspace.me.start_count : 0
-  source         = "registry.coder.com/coder-labs/gemini/coder"
-  version        = "1.0.0"
-  agent_id       = coder_agent.main.id
-  gemini_api_key = data.coder_parameter.gemini_api_key.value
-  folder         = "/home/coder/projects"
+  count            = data.coder_workspace.me.start_count
+  source           = "registry.coder.com/coder-labs/gemini/coder"
+  version          = "1.0.0"
+  agent_id         = coder_agent.main.id
+  gemini_api_key   = data.coder_parameter.gemini_api_key.value
+  folder           = "/home/coder/projects"
+  install_agentapi = false  # CRITICAL: Only Claude Code should create coder_ai_task
 }
 
 # Goose AI Agent
-# Both modules write to /tmp/install.sh simultaneously causing "Text file busy" error
-# Using manual installation script below instead
+# Always create so it appears in panel
 module "goose" {
-  count          = data.coder_workspace.me.start_count
-  source         = "registry.coder.com/coder/goose/coder"
-  version        = "3.0.0"
-  agent_id       = coder_agent.main.id
-  folder         = "/home/coder/projects"
-  install_goose  = true  # Explicitly enable goose installation
-  goose_provider = "anthropic"
-  goose_model    = "claude-3-5-sonnet-20241022"
+  count            = data.coder_workspace.me.start_count
+  source           = "registry.coder.com/coder/goose/coder"
+  version          = "3.0.0"
+  agent_id         = coder_agent.main.id
+  folder           = "/home/coder/projects"
+  install_goose    = true
+  goose_provider   = "anthropic"
+  goose_model      = "claude-3-5-sonnet-20241022"
+  install_agentapi = false  # CRITICAL: Only Claude Code should create coder_ai_task
 }
 
 # ========================================
