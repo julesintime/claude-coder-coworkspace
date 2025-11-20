@@ -1276,47 +1276,14 @@ resource "coder_script" "vibe_kanban" {
 # ADDITIONAL AI TOOLS (NOT FOR CODER TASKS)
 # ========================================
 # IMPORTANT: Only Claude Code creates coder_ai_task (for Coder Tasks feature).
-# The other AI tools (Codex, Copilot, Gemini) appear in the workspace panel
-# as coder_app resources but do NOT create coder_ai_task (install_agentapi=false).
-# This ensures ONLY Claude Code integrates with Coder Tasks UI.
+# The other AI tools appear in the workspace panel as coder_app resources ONLY.
+# We do NOT use the modules because they use agentapi v1.x which ALWAYS creates
+# coder_ai_task regardless of install_agentapi parameter.
 
-# OpenAI Codex CLI
-# Always create so it appears in panel (module handles empty API key gracefully)
-module "codex" {
-  count            = data.coder_workspace.me.start_count
-  source           = "registry.coder.com/coder-labs/codex/coder"
-  version          = "2.1.0"
-  agent_id         = coder_agent.main.id
-  openai_api_key   = data.coder_parameter.openai_api_key.value
-  folder           = "/home/coder/projects"
-  ai_prompt        = data.coder_parameter.unified_ai_prompt.value
-  install_agentapi = false  # CRITICAL: Only Claude Code should create coder_ai_task
-}
-
-# GitHub Copilot CLI
-# Always create so it appears in panel (module handles empty token gracefully)
-module "copilot" {
-  count            = data.coder_workspace.me.start_count
-  source           = "registry.coder.com/coder-labs/copilot/coder"
-  version          = "0.2.2"
-  agent_id         = coder_agent.main.id
-  github_token     = data.coder_parameter.github_token.value
-  workdir          = "/home/coder/projects"
-  ai_prompt        = data.coder_parameter.unified_ai_prompt.value
-  install_agentapi = false  # CRITICAL: Only Claude Code should create coder_ai_task
-}
-
-# Google Gemini CLI
-# Always create so it appears in panel (module handles empty API key gracefully)
-module "gemini" {
-  count            = data.coder_workspace.me.start_count
-  source           = "registry.coder.com/coder-labs/gemini/coder"
-  version          = "1.0.0"
-  agent_id         = coder_agent.main.id
-  gemini_api_key   = data.coder_parameter.gemini_api_key.value
-  folder           = "/home/coder/projects"
-  install_agentapi = false  # CRITICAL: Only Claude Code should create coder_ai_task
-}
+# NOTE: Codex, Copilot, and Gemini modules are DISABLED because their agentapi
+# submodules (v1.x) always create coder_ai_task. We only want Claude Code to
+# create coder_ai_task for Coder Tasks integration.
+# If you need these tools, install them manually or wait for module updates.
 
 # Goose AI Agent
 # Always create so it appears in panel
