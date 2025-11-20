@@ -1079,15 +1079,9 @@ module "claude-code" {
   claude_code_oauth_token = local.use_oauth_token ? data.coder_parameter.claude_oauth_token.value : ""
 }
 
-# Coder Tasks Integration
-# Create coder_ai_task for Claude Code since all AI tools have install_agentapi=false
-resource "coder_ai_task" "main" {
-  count = data.coder_workspace.me.start_count
-
-  sidebar_app {
-    id = module.claude-code[0].task_app_id
-  }
-}
+# NOTE: Codex/Copilot/Gemini modules use agentapi v1.2.0 which ALWAYS creates coder_ai_task
+# We cannot prevent this, so we use codex's coder_ai_task for Coder Tasks integration
+# Other modules (copilot, gemini) also create their own - Coder will show error
 
 # MCP Server Configuration Script
 # Runs AFTER Claude Code module installs the CLI
@@ -1281,45 +1275,20 @@ resource "coder_script" "vibe_kanban" {
 # OpenAI Codex CLI
 # Always create module so app appears in panel (module handles empty API key gracefully)
 module "codex" {
-  count            = data.coder_workspace.me.start_count
-  source           = "registry.coder.com/coder-labs/codex/coder"
-  version          = "2.1.0"
-  agent_id         = coder_agent.main.id
-  openai_api_key   = data.coder_parameter.openai_api_key.value
-  folder           = "/home/coder/projects"
-  ai_prompt        = data.coder_parameter.unified_ai_prompt.value
-  agentapi_version = "v0.11.0"  # Use agentapi v2.x which respects install_agentapi parameter
-  install_agentapi = false      # Disable to avoid coder_ai_task conflict
+  count          = data.coder_workspace.me.start_count
+  source         = "registry.coder.com/coder-labs/codex/coder"
+  version        = "2.1.0"
+  agent_id       = coder_agent.main.id
+  openai_api_key = data.coder_parameter.openai_api_key.value
+  folder         = "/home/coder/projects"
+  ai_prompt      = data.coder_parameter.unified_ai_prompt.value
+  # This module uses agentapi v1.2.0 which ALWAYS creates coder_ai_task (for Coder Tasks)
 }
 
-# GitHub Copilot CLI
-# Always create module so app appears in panel (module handles empty token gracefully)
-module "copilot" {
-  count            = data.coder_workspace.me.start_count
-  source           = "registry.coder.com/coder-labs/copilot/coder"
-  version          = "0.2.2"
-  agent_id         = coder_agent.main.id
-  github_token     = data.coder_parameter.github_token.value
-  workdir          = "/home/coder/projects"
-  ai_prompt        = data.coder_parameter.unified_ai_prompt.value
-  agentapi_version = "v0.11.0"  # Use agentapi v2.x which respects install_agentapi parameter
-  install_agentapi = false      # Disable to avoid coder_ai_task conflict
-}
-
-# Google Gemini CLI
-# Always create module so app appears in panel (module handles empty API key gracefully)
-# NOTE: Gemini module creates its own "AI Prompt" parameter which will NOT conflict
-# because when gemini_api_key is empty, users configure prompts via gemini's own parameter
-module "gemini" {
-  count            = data.coder_workspace.me.start_count
-  source           = "registry.coder.com/coder-labs/gemini/coder"
-  version          = "1.0.0"
-  agent_id         = coder_agent.main.id
-  gemini_api_key   = data.coder_parameter.gemini_api_key.value
-  folder           = "/home/coder/projects"
-  agentapi_version = "v0.11.0"  # Use agentapi v2.x which respects install_agentapi parameter
-  install_agentapi = false      # Disable to avoid coder_ai_task conflict
-}
+# NOTE: Copilot and Gemini modules DISABLED
+# Both use agentapi v1.2.0 which ALWAYS creates coder_ai_task regardless of install_agentapi parameter
+# This conflicts with codex's coder_ai_task. Only ONE module with agentapi v1.x can be enabled.
+# Waiting for module updates to agentapi v2.x before re-enabling.
 
 # Goose AI Agent
 # Both modules write to /tmp/install.sh simultaneously causing "Text file busy" error
