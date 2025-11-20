@@ -1071,8 +1071,15 @@ module "claude-code" {
   # Authentication (optional - Claude Code works without it)
   claude_api_key          = local.use_api_key ? data.coder_parameter.claude_api_key.value : ""
   claude_code_oauth_token = local.use_oauth_token ? data.coder_parameter.claude_oauth_token.value : ""
-  # API Endpoint (optional - for custom Anthropic-compatible endpoints)
-  claude_api_endpoint = data.coder_parameter.claude_api_endpoint.value != "" ? data.coder_parameter.claude_api_endpoint.value : null
+}
+
+# Set custom Anthropic API endpoint if provided (via environment variable)
+resource "coder_env" "claude_api_endpoint" {
+  count = data.coder_parameter.claude_api_endpoint.value != "" ? 1 : 0
+
+  agent_id = coder_agent.main.id
+  name     = "ANTHROPIC_BASE_URL"
+  value    = data.coder_parameter.claude_api_endpoint.value
 }
 
 # Coder Tasks Integration - use Claude Code as the task interface
