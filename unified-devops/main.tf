@@ -1035,6 +1035,22 @@ resource "coder_script" "claude_code_ui" {
 
     echo "🎨 Setting up Claude Code UI..."
 
+    # Wait for PM2 to be installed (install_pm2 script runs with start_blocks_login=true)
+    # But we run without blocking, so we need to wait for PM2 to become available
+    echo "⏳ Waiting for PM2 to be installed..."
+    for i in {1..60}; do
+      if command -v pm2 >/dev/null 2>&1; then
+        echo "✅ PM2 found!"
+        break
+      fi
+      if [ $i -eq 60 ]; then
+        echo "❌ Timeout waiting for PM2 installation"
+        exit 1
+      fi
+      echo "Waiting for PM2... ($i/60)"
+      sleep 2
+    done
+
     # Install Claude Code UI with retry logic for network issues
     echo "📦 Installing Claude Code UI..."
     for i in 1 2 3; do
@@ -1096,11 +1112,21 @@ resource "coder_script" "vibe_kanban" {
       exit 1
     fi
 
-    # Verify pm2 is available
-    if ! command -v pm2 >/dev/null 2>&1; then
-      echo "❌ PM2 not found, cannot start Vibe Kanban"
-      exit 1
-    fi
+    # Wait for PM2 to be installed (install_pm2 script runs with start_blocks_login=true)
+    # But we run without blocking, so we need to wait for PM2 to become available
+    echo "⏳ Waiting for PM2 to be installed..."
+    for i in {1..60}; do
+      if command -v pm2 >/dev/null 2>&1; then
+        echo "✅ PM2 found!"
+        break
+      fi
+      if [ $i -eq 60 ]; then
+        echo "❌ Timeout waiting for PM2 installation"
+        exit 1
+      fi
+      echo "Waiting for PM2... ($i/60)"
+      sleep 2
+    done
 
     # Create data directory for persistence
     mkdir -p /home/coder/.vibe-kanban
