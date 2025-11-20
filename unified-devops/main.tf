@@ -1293,7 +1293,7 @@ module "gemini" {
 # Both modules write to /tmp/install.sh simultaneously causing "Text file busy" error
 # Using manual installation script below instead
 module "goose" {
-  count            = data.coder_workspace.me.start_count
+  count            = 0 # Disabled due to script conflicts with other modules
   source           = "registry.coder.com/coder/goose/coder"
   version          = "3.0.0"
   agent_id         = coder_agent.main.id
@@ -1303,7 +1303,6 @@ module "goose" {
   goose_model      = "claude-3-5-sonnet-20241022"
   agentapi_version = "v0.11.0"  # Use agentapi v2.x which respects install_agentapi parameter
   install_agentapi = false      # Disable to avoid coder_ai_task conflict
-  depends_on       = [module.gemini]
 }
 
 # ========================================
