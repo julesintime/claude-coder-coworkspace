@@ -594,6 +594,11 @@ resource "coder_agent" "main" {
       echo "127.0.1.1 $CURRENT_HOSTNAME" | sudo tee -a /etc/hosts >/dev/null
     fi
 
+    # Increase inotify limits for file watchers (VSCode, build tools, etc.)
+    echo "⚙️ Configuring inotify limits..."
+    sudo sysctl -w fs.inotify.max_user_watches=524288 || echo "⚠️ Could not set inotify limit"
+    sudo sysctl -w fs.inotify.max_user_instances=512 || echo "⚠️ Could not set inotify instances"
+
     # Create project directories
     mkdir -p /home/coder/projects
     mkdir -p ~/.claude/resume-logs
@@ -813,6 +818,13 @@ module "claude-code" {
   system_prompt                = data.coder_parameter.system_prompt.value
   model                        = "sonnet"
   permission_mode              = "bypassPermissions"
+  pre_install_script           = <<-EOT
+    # Clean up empty session files that cause "No conversation found" errors
+    if [ -d "$HOME/.claude/projects" ]; then
+      find "$HOME/.claude/projects" -type f -name "*.jsonl" -size 0 -delete 2>/dev/null || true
+      echo "Cleaned up empty Claude session files"
+    fi
+  EOT
   post_install_script          = <<-EOT
     claude mcp add --transport http context7 https://mcp.context7.com/mcp
     claude mcp add --transport http deepwiki https://mcp.deepwiki.com/mcp
@@ -844,13 +856,12 @@ resource "coder_ai_task" "main" {
 # ========================================
 
 # Personalize - Git configuration from Coder user data (official module)
-# Depends on dotfiles to ensure install.sh creates /home/coder/personalize first
+# Runs after dotfiles (defined above) due to Terraform execution order
 module "personalize" {
-  count      = data.coder_workspace.me.start_count
-  source     = "registry.coder.com/coder/personalize/coder"
-  version    = "~> 1.0"
-  agent_id   = coder_agent.main.id
-  depends_on = [module.dotfiles]
+  count    = data.coder_workspace.me.start_count
+  source   = "registry.coder.com/coder/personalize/coder"
+  version  = "~> 1.0"
+  agent_id = coder_agent.main.id
 }
 
 # Dotfiles - Official module with default repository
@@ -991,7 +1002,7 @@ resource "coder_app" "claude_code_ui" {
   agent_id     = coder_agent.main.id
   slug         = "claude-code-ui"
   display_name = "Claude Code UI"
-  icon         = "/icons/desktop.svg"
+  icon         = "/icon/personalize.svg"
   url          = "http://localhost:${data.coder_parameter.claude_code_ui_port.value}"
   share        = "owner" # Only workspace owner can access
   subdomain    = true
@@ -1011,7 +1022,7 @@ resource "coder_app" "vibe_kanban" {
   agent_id     = coder_agent.main.id
   slug         = "vibe-kanban"
   display_name = "Vibe Kanban"
-  icon         = "/icons/auto-dev-server.svg"
+  icon         = "/icon/tasks.svg"
   url          = "http://localhost:${data.coder_parameter.vibe_kanban_port.value}"
   share        = "owner" # Only workspace owner can access
   subdomain    = true
