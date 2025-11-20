@@ -181,11 +181,11 @@ data "coder_workspace_preset" "default" {
       -- Available Tools --
       - Docker & Docker Compose: Full support for containerized development
       - Built-in tools: use for file operations, git commands, builds & installs, one-off shell commands
-	    
+
       Remember this decision rule:
       - Stays running? → Docker (docker-compose up -d)
       - Finishes immediately? → built-in tools
-      
+
       -- Docker Support --
       This workspace has full Docker-in-Docker capability via Envbox. You can:
       - Run `docker build` and `docker-compose up`
@@ -228,7 +228,7 @@ data "coder_workspace_preset" "default" {
     # Workspace is ready!
     echo "✅ Workspace setup complete!"
     echo "Docker is available - try: docker run hello-world"
-    
+
     # Return success
     exit 0
     EOT

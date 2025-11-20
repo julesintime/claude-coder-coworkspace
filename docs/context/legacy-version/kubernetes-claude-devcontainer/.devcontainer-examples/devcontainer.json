@@ -1,0 +1,50 @@
+{
+  "name": "Kubernetes Claude DevContainer",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:latest",
+
+  // Features to add to the dev container
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "moby": true
+    },
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+      "version": "latest",
+      "helm": "latest",
+      "minikube": "none"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "version": "latest"
+    }
+  },
+
+  // Configure tool-specific properties
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.formatOnSave": true,
+        "files.autoSave": "afterDelay",
+        "editor.tabSize": 2,
+        "typescript.updateImportsOnFileMove.enabled": "always"
+      },
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-azuretools.vscode-docker",
+        "ms-python.python",
+        "github.copilot",
+        "github.copilot-chat"
+      ]
+    }
+  },
+
+  // Use 'forwardPorts' to make a list of ports inside the container available locally
+  "forwardPorts": [3000, 8000, 8080],
+
+  // Use 'postCreateCommand' to run commands after the container is created
+  "postCreateCommand": "npm install -g typescript ts-node",
+
+  // Set 'remoteUser' to run as the specified user
+  "remoteUser": "node"
+}

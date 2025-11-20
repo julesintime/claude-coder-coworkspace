@@ -813,31 +813,15 @@ module "claude-code" {
   system_prompt                = data.coder_parameter.system_prompt.value
   model                        = "sonnet"
   permission_mode              = "bypassPermissions"
-  post_install_script          = ""
+  post_install_script          = <<-EOT
+    claude mcp add --transport http context7 https://mcp.context7.com/mcp
+    claude mcp add --transport http deepwiki https://mcp.deepwiki.com/mcp
+  EOT
   dangerously_skip_permissions = "true"
 
   # Authentication (module manages env vars internally)
   claude_api_key          = local.use_api_key ? data.coder_parameter.claude_api_key.value : ""
   claude_code_oauth_token = local.use_oauth_token ? data.coder_parameter.claude_oauth_token.value : ""
-
-  # MCP Server Configuration (JSON format)
-  mcp = <<-EOF
-  {
-    "mcpServers": {
-      "sequential-thinking": {
-        "command": "npx",
-        "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
-      },
-      "context7": {
-        "command": "npx",
-        "args": ["-y", "@upstash/context7-mcp"]
-      },
-      "deepwiki": {
-        "url": "https://mcp.deepwiki.com/mcp"
-      }
-    }
-  }
-  EOF
 
 }
 
@@ -860,11 +844,13 @@ resource "coder_ai_task" "main" {
 # ========================================
 
 # Personalize - Git configuration from Coder user data (official module)
+# Depends on dotfiles to ensure install.sh creates /home/coder/personalize first
 module "personalize" {
-  count    = data.coder_workspace.me.start_count
-  source   = "registry.coder.com/coder/personalize/coder"
-  version  = "~> 1.0"
-  agent_id = coder_agent.main.id
+  count      = data.coder_workspace.me.start_count
+  source     = "registry.coder.com/coder/personalize/coder"
+  version    = "~> 1.0"
+  agent_id   = coder_agent.main.id
+  depends_on = [module.dotfiles]
 }
 
 # Dotfiles - Official module with default repository
@@ -1005,7 +991,7 @@ resource "coder_app" "claude_code_ui" {
   agent_id     = coder_agent.main.id
   slug         = "claude-code-ui"
   display_name = "Claude Code UI"
-  icon         = "/icon/code.svg"
+  icon         = "/icons/desktop.svg"
   url          = "http://localhost:${data.coder_parameter.claude_code_ui_port.value}"
   share        = "owner" # Only workspace owner can access
   subdomain    = true
@@ -1025,7 +1011,7 @@ resource "coder_app" "vibe_kanban" {
   agent_id     = coder_agent.main.id
   slug         = "vibe-kanban"
   display_name = "Vibe Kanban"
-  icon         = "/icon/workspace.svg"
+  icon         = "/icons/auto-dev-server.svg"
   url          = "http://localhost:${data.coder_parameter.vibe_kanban_port.value}"
   share        = "owner" # Only workspace owner can access
   subdomain    = true

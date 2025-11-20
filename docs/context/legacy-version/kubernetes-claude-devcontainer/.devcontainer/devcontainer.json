@@ -1,0 +1,184 @@
+{
+  "name": "Unified DevOps Workspace with AI Tools",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:latest",
+
+  // Dev Container Features - composable, reusable components
+  "features": {
+    // Docker-in-Docker support (works with Envbox)
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "moby": false,
+      "dockerDashComposeVersion": "v2"
+    },
+
+    // Kubernetes tools (kubectl, helm, minikube)
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+      "version": "1.31",
+      "helm": "latest",
+      "minikube": "none"
+    },
+
+    // GitHub CLI
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "version": "latest"
+    },
+
+    // Common utilities
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "installOhMyZsh": false,
+      "upgradePackages": true,
+      "username": "node",
+      "userUid": "1000",
+      "userGid": "1000"
+    }
+  },
+
+  // Lifecycle scripts
+  "postCreateCommand": ".devcontainer/scripts/post-create.sh",
+  "postStartCommand": ".devcontainer/scripts/post-start.sh",
+
+  // Container user
+  "remoteUser": "node",
+  "containerUser": "node",
+  "updateRemoteUserUID": true,
+
+  // Environment variables for the container
+  "containerEnv": {
+    "WORKSPACE_DIR": "${containerWorkspaceFolder}",
+    "NODE_ENV": "development"
+  },
+
+  // Coder customizations
+  "customizations": {
+    // VS Code settings and extensions
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.formatOnSave": true,
+        "files.autoSave": "afterDelay",
+        "window.autoDetectColorScheme": true
+      },
+      "extensions": [
+        "ms-azuretools.vscode-docker",
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "johnpapa.vscode-peacock",
+        "coder.coder-remote"
+      ]
+    },
+
+    // Coder-specific app definitions
+    "coder": {
+      "apps": [
+        {
+          "slug": "preview",
+          "displayName": "App Preview",
+          "url": "http://localhost:3000",
+          "icon": "${localEnv:CODER_WORKSPACE_ACCESS_URL}/emojis/1f50e.png",
+          "openIn": "tab",
+          "share": "authenticated",
+          "subdomain": true,
+          "order": 0,
+          "healthCheck": {
+            "url": "http://localhost:3000",
+            "interval": 5,
+            "threshold": 15
+          }
+        },
+        {
+          "slug": "claude-code-ui",
+          "displayName": "Claude Code UI",
+          "url": "http://localhost:38401",
+          "icon": "/icon/code.svg",
+          "openIn": "tab",
+          "share": "owner",
+          "subdomain": true,
+          "order": 1,
+          "healthCheck": {
+            "url": "http://localhost:38401",
+            "interval": 5,
+            "threshold": 20
+          }
+        },
+        {
+          "slug": "vibe-kanban",
+          "displayName": "Vibe Kanban",
+          "url": "http://localhost:38402",
+          "icon": "/icon/workspace.svg",
+          "openIn": "tab",
+          "share": "owner",
+          "subdomain": true,
+          "order": 2,
+          "healthCheck": {
+            "url": "http://localhost:38402",
+            "interval": 10,
+            "threshold": 30
+          }
+        },
+        {
+          "slug": "cursor",
+          "displayName": "Cursor Desktop",
+          "url": "cursor://coder.coder-remote/openDevContainer?owner=${localEnv:CODER_WORKSPACE_OWNER_NAME}&workspace=${localEnv:CODER_WORKSPACE_NAME}&agent=${localEnv:CODER_WORKSPACE_PARENT_AGENT_NAME}&url=${localEnv:CODER_URL}&token=$SESSION_TOKEN&devContainerName=${localEnv:CONTAINER_ID}&devContainerFolder=${containerWorkspaceFolder}&localWorkspaceFolder=${localWorkspaceFolder}",
+          "external": true,
+          "icon": "/icon/cursor.svg",
+          "order": 10
+        },
+        {
+          "slug": "windsurf",
+          "displayName": "Windsurf Editor",
+          "url": "windsurf://coder.coder-remote/openDevContainer?owner=${localEnv:CODER_WORKSPACE_OWNER_NAME}&workspace=${localEnv:CODER_WORKSPACE_NAME}&agent=${localEnv:CODER_WORKSPACE_PARENT_AGENT_NAME}&url=${localEnv:CODER_URL}&token=$SESSION_TOKEN&devContainerName=${localEnv:CONTAINER_ID}&devContainerFolder=${containerWorkspaceFolder}&localWorkspaceFolder=${localWorkspaceFolder}",
+          "external": true,
+          "icon": "/icon/windsurf.svg",
+          "order": 11
+        }
+      ]
+    }
+  },
+
+  // Volume mounts for persistence
+  "mounts": [
+    // Home directory persistence
+    "source=coder-${localEnv:CODER_WORKSPACE_ID}-home,target=/home/node,type=volume",
+
+    // Docker data persistence
+    "source=coder-${localEnv:CODER_WORKSPACE_ID}-docker,target=/var/lib/docker,type=volume",
+
+    // Optional: Mount host home for dotfiles access
+    "source=${localEnv:HOME}/.config/coderv2/dotfiles,target=/mnt/dotfiles,type=bind,readonly,consistency=cached"
+  ],
+
+  // Ports to forward (optional - mainly for documentation)
+  "forwardPorts": [
+    3000,   // App preview
+    38401,  // Claude Code UI
+    38402   // Vibe Kanban
+  ],
+
+  // Port attributes
+  "portsAttributes": {
+    "3000": {
+      "label": "App Preview",
+      "onAutoForward": "notify"
+    },
+    "38401": {
+      "label": "Claude Code UI",
+      "onAutoForward": "silent"
+    },
+    "38402": {
+      "label": "Vibe Kanban",
+      "onAutoForward": "silent"
+    }
+  },
+
+  // Additional configuration
+  "init": true,
+  "privileged": false,
+  "capAdd": ["SYS_PTRACE"],
+
+  // Override command (optional)
+  // "overrideCommand": false,
+
+  // Additional runtime arguments
+  "runArgs": [
+    "--hostname=devcontainer"
+  ]
+}
