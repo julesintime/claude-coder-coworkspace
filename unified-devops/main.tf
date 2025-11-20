@@ -1281,25 +1281,27 @@ resource "coder_script" "vibe_kanban" {
 # OpenAI Codex CLI
 # Always create module so app appears in panel (module handles empty API key gracefully)
 module "codex" {
-  count          = data.coder_workspace.me.start_count
-  source         = "registry.coder.com/coder-labs/codex/coder"
-  version        = "2.1.0"
-  agent_id       = coder_agent.main.id
-  openai_api_key = data.coder_parameter.openai_api_key.value
-  folder         = "/home/coder/projects"
-  ai_prompt      = data.coder_parameter.unified_ai_prompt.value  # Pass unified prompt
+  count            = data.coder_workspace.me.start_count
+  source           = "registry.coder.com/coder-labs/codex/coder"
+  version          = "2.1.0"
+  agent_id         = coder_agent.main.id
+  openai_api_key   = data.coder_parameter.openai_api_key.value
+  folder           = "/home/coder/projects"
+  ai_prompt        = data.coder_parameter.unified_ai_prompt.value  # Pass unified prompt
+  install_agentapi = false  # Disable AgentAPI to avoid coder_ai_task conflict
 }
 
 # GitHub Copilot CLI
 # Always create module so app appears in panel (module handles empty token gracefully)
 module "copilot" {
-  count        = data.coder_workspace.me.start_count
-  source       = "registry.coder.com/coder-labs/copilot/coder"
-  version      = "0.2.2"
-  agent_id     = coder_agent.main.id
-  github_token = data.coder_parameter.github_token.value
-  workdir      = "/home/coder/projects"
-  ai_prompt    = data.coder_parameter.unified_ai_prompt.value  # Pass unified prompt
+  count            = data.coder_workspace.me.start_count
+  source           = "registry.coder.com/coder-labs/copilot/coder"
+  version          = "0.2.2"
+  agent_id         = coder_agent.main.id
+  github_token     = data.coder_parameter.github_token.value
+  workdir          = "/home/coder/projects"
+  ai_prompt        = data.coder_parameter.unified_ai_prompt.value  # Pass unified prompt
+  install_agentapi = false  # Disable AgentAPI to avoid coder_ai_task conflict
 }
 
 # Google Gemini CLI
@@ -1307,26 +1309,28 @@ module "copilot" {
 # NOTE: Gemini module creates its own "AI Prompt" parameter which will NOT conflict
 # because when gemini_api_key is empty, users configure prompts via gemini's own parameter
 module "gemini" {
-  count          = data.coder_workspace.me.start_count
-  source         = "registry.coder.com/coder-labs/gemini/coder"
-  version        = "1.0.0"
-  agent_id       = coder_agent.main.id
-  gemini_api_key = data.coder_parameter.gemini_api_key.value
-  folder         = "/home/coder/projects"
+  count            = data.coder_workspace.me.start_count
+  source           = "registry.coder.com/coder-labs/gemini/coder"
+  version          = "1.0.0"
+  agent_id         = coder_agent.main.id
+  gemini_api_key   = data.coder_parameter.gemini_api_key.value
+  folder           = "/home/coder/projects"
+  install_agentapi = false  # Disable AgentAPI to avoid coder_ai_task conflict
 }
 
 # Goose AI Agent
 # Both modules write to /tmp/install.sh simultaneously causing "Text file busy" error
 # Using manual installation script below instead
 module "goose" {
-  count          = data.coder_workspace.me.start_count
-  source         = "registry.coder.com/coder/goose/coder"
-  version        = "3.0.0"
-  agent_id       = coder_agent.main.id
-  folder         = "/home/coder/projects"
-  install_goose  = true  # Explicitly enable goose installation
-  goose_provider = "anthropic"
-  goose_model    = "claude-3-5-sonnet-20241022"
+  count            = data.coder_workspace.me.start_count
+  source           = "registry.coder.com/coder/goose/coder"
+  version          = "3.0.0"
+  agent_id         = coder_agent.main.id
+  folder           = "/home/coder/projects"
+  install_goose    = true  # Explicitly enable goose installation
+  goose_provider   = "anthropic"
+  goose_model      = "claude-3-5-sonnet-20241022"
+  install_agentapi = false  # Disable AgentAPI to avoid coder_ai_task conflict
 }
 
 # ========================================
