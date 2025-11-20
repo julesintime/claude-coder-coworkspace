@@ -106,7 +106,7 @@ data "coder_workspace_preset" "mega" {
 data "coder_parameter" "preset" {
   name         = "preset"
   display_name = "Workspace Preset"
-  description  = "Choose a preset configuration for CPU, RAM, and disk (nano: 1CPU/2GB/20GB, mini: 2CPU/8GB/50GB, mega: 8CPU/32GB/200GB)"
+  description  = "Choose a preset (can be overridden by individual CPU/RAM/Disk below)"
   default      = "mini"
   type         = "string"
   icon         = "/icon/gear.svg"
@@ -129,6 +129,118 @@ data "coder_parameter" "preset" {
     name        = "mega"
     description = "Mega: 8 CPU, 32GB RAM, 200GB disk"
     value       = "mega"
+  }
+}
+
+# CPU Override (optional - overrides preset if not "auto")
+data "coder_parameter" "cpu_override" {
+  name         = "cpu_override"
+  display_name = "CPU Cores (Override)"
+  description  = "Override preset CPU (leave as 'auto' to use preset value)"
+  default      = "auto"
+  type         = "string"
+  icon         = "/icon/compute.svg"
+  mutable      = false
+
+  option {
+    name  = "auto"
+    value = "auto"
+  }
+  option {
+    name  = "1"
+    value = "1"
+  }
+  option {
+    name  = "2"
+    value = "2"
+  }
+  option {
+    name  = "4"
+    value = "4"
+  }
+  option {
+    name  = "8"
+    value = "8"
+  }
+  option {
+    name  = "16"
+    value = "16"
+  }
+}
+
+# Memory Override (optional - overrides preset if not "auto")
+data "coder_parameter" "memory_override" {
+  name         = "memory_override"
+  display_name = "Memory GB (Override)"
+  description  = "Override preset memory (leave as 'auto' to use preset value)"
+  default      = "auto"
+  type         = "string"
+  icon         = "/icon/memory.svg"
+  mutable      = false
+
+  option {
+    name  = "auto"
+    value = "auto"
+  }
+  option {
+    name  = "2"
+    value = "2"
+  }
+  option {
+    name  = "4"
+    value = "4"
+  }
+  option {
+    name  = "8"
+    value = "8"
+  }
+  option {
+    name  = "16"
+    value = "16"
+  }
+  option {
+    name  = "32"
+    value = "32"
+  }
+  option {
+    name  = "64"
+    value = "64"
+  }
+}
+
+# Disk Override (optional - overrides preset if not "auto")
+data "coder_parameter" "disk_override" {
+  name         = "disk_override"
+  display_name = "Disk GB (Override)"
+  description  = "Override preset disk (leave as 'auto' to use preset value)"
+  default      = "auto"
+  type         = "string"
+  icon         = "/icon/folder.svg"
+  mutable      = false
+
+  option {
+    name  = "auto"
+    value = "auto"
+  }
+  option {
+    name  = "20"
+    value = "20"
+  }
+  option {
+    name  = "50"
+    value = "50"
+  }
+  option {
+    name  = "100"
+    value = "100"
+  }
+  option {
+    name  = "200"
+    value = "200"
+  }
+  option {
+    name  = "500"
+    value = "500"
   }
 }
 
@@ -362,11 +474,11 @@ data "coder_parameter" "system_prompt" {
   EOT
 }
 
-data "coder_parameter" "ai_prompt" {
+data "coder_parameter" "unified_ai_prompt" {
   type        = "string"
-  name        = "AI Prompt"
+  name        = "Unified AI Prompt"
   default     = ""
-  description = "Write a prompt for Claude Code (supports Coder Tasks)"
+  description = "Write a prompt for AI tools (supports Coder Tasks for Claude, Copilot, Codex, Goose)"
   mutable     = true
   # NOTE: ephemeral must be false for Coder Tasks to work properly
   # Tasks require persistent parameters to display in the UI
@@ -618,29 +730,29 @@ data "coder_external_auth" "github" {
 # ========================================
 
 locals {
-  # Preset configurations
+  # Preset configurations (CORRECTED to match description)
   preset_configs = {
     nano = {
-      cpu    = 2
-      memory = 4
-      disk   = 10
-    }
-    mini = {
-      cpu    = 4
-      memory = 8
+      cpu    = 1
+      memory = 2
       disk   = 20
     }
+    mini = {
+      cpu    = 2
+      memory = 8
+      disk   = 50
+    }
     mega = {
-      cpu    = 16
-      memory = 64
-      disk   = 100
+      cpu    = 8
+      memory = 32
+      disk   = 200
     }
   }
 
-  # Use preset values
-  cpu_value    = local.preset_configs[data.coder_parameter.preset.value].cpu
-  memory_value = local.preset_configs[data.coder_parameter.preset.value].memory
-  disk_value   = local.preset_configs[data.coder_parameter.preset.value].disk
+  # Use override if set, otherwise use preset values
+  cpu_value = data.coder_parameter.cpu_override.value != "auto" ? tonumber(data.coder_parameter.cpu_override.value) : local.preset_configs[data.coder_parameter.preset.value].cpu
+  memory_value = data.coder_parameter.memory_override.value != "auto" ? tonumber(data.coder_parameter.memory_override.value) : local.preset_configs[data.coder_parameter.preset.value].memory
+  disk_value = data.coder_parameter.disk_override.value != "auto" ? tonumber(data.coder_parameter.disk_override.value) : local.preset_configs[data.coder_parameter.preset.value].disk
 
   has_claude_auth  = length(data.coder_parameter.claude_api_key.value) > 0 || length(data.coder_parameter.claude_oauth_token.value) > 0
   use_oauth_token  = length(data.coder_parameter.claude_oauth_token.value) > 0
@@ -1160,28 +1272,35 @@ resource "coder_script" "vibe_kanban" {
 # ========================================
 
 # OpenAI Codex CLI
+# Always create module so app appears in panel (module handles empty API key gracefully)
 module "codex" {
-  count          = data.coder_parameter.openai_api_key.value != "" ? data.coder_workspace.me.start_count : 0
+  count          = data.coder_workspace.me.start_count
   source         = "registry.coder.com/coder-labs/codex/coder"
   version        = "2.1.0"
   agent_id       = coder_agent.main.id
   openai_api_key = data.coder_parameter.openai_api_key.value
   folder         = "/home/coder/projects"
+  ai_prompt      = data.coder_parameter.unified_ai_prompt.value  # Pass unified prompt
 }
 
 # GitHub Copilot CLI
+# Always create module so app appears in panel (module handles empty token gracefully)
 module "copilot" {
-  count        = data.coder_parameter.github_token.value != "" ? data.coder_workspace.me.start_count : 0
+  count        = data.coder_workspace.me.start_count
   source       = "registry.coder.com/coder-labs/copilot/coder"
   version      = "0.2.2"
   agent_id     = coder_agent.main.id
   github_token = data.coder_parameter.github_token.value
   workdir      = "/home/coder/projects"
+  ai_prompt    = data.coder_parameter.unified_ai_prompt.value  # Pass unified prompt
 }
 
 # Google Gemini CLI
+# Always create module so app appears in panel (module handles empty API key gracefully)
+# NOTE: Gemini module creates its own "AI Prompt" parameter which will NOT conflict
+# because when gemini_api_key is empty, users configure prompts via gemini's own parameter
 module "gemini" {
-  count          = data.coder_parameter.gemini_api_key.value != "" ? data.coder_workspace.me.start_count : 0
+  count          = data.coder_workspace.me.start_count
   source         = "registry.coder.com/coder-labs/gemini/coder"
   version        = "1.0.0"
   agent_id       = coder_agent.main.id
