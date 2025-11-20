@@ -825,16 +825,16 @@ module "claude-code" {
   {
     "mcpServers": {
       "sequential-thinking": {
-        "command": "npx"
+        "command": "npx",
         "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
       },
       "context7": {
-        "command": "npx"
+        "command": "npx",
         "args": ["-y", "@upstash/context7-mcp"]
       },
       "deepwiki": {
         "url": "https://mcp.deepwiki.com/mcp"
-      },
+      }
     }
   }
   EOF
