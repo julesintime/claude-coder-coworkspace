@@ -1015,27 +1015,21 @@ resource "coder_script" "install_pm2" {
 
     if ! command -v pm2 >/dev/null 2>&1; then
       if command -v npm >/dev/null 2>&1; then
-        echo "Trying npm install without sudo first..."
-        if npm install -g pm2 2>&1; then
-          echo "✅ PM2 installed successfully with npm"
-        else
-          echo "npm install failed, trying with sudo..."
-          for i in 1 2 3; do
-            echo "PM2 install attempt $i/3 with sudo..."
-            if sudo npm install -g pm2 --force 2>&1; then
-              echo "✅ PM2 installed successfully with sudo"
-              break
+        for i in 1 2 3; do
+          echo "PM2 install attempt $i/3 with sudo..."
+          if sudo npm install -g pm2 --force 2>&1; then
+            echo "✅ PM2 installed successfully with sudo"
+            break
+          else
+            echo "⚠️ PM2 install attempt $i failed"
+            if [ $i -eq 3 ]; then
+              echo "❌ PM2 installation failed after 3 attempts"
+              exit 1
             else
-              echo "⚠️ PM2 install attempt $i failed"
-              if [ $i -eq 3 ]; then
-                echo "❌ PM2 installation failed after 3 attempts"
-                exit 1
-              else
-                sleep 5
-              fi
+              sleep 5
             fi
-          done
-        fi
+          fi
+        done
       else
         echo "❌ npm not found, cannot install PM2"
         exit 1
@@ -1065,11 +1059,11 @@ module "claude-code" {
   source  = "registry.coder.com/coder/claude-code/coder"
   version = "~> 4.0" # Use latest 4.x version, fallback to 3.x if unavailable
 
-  agent_id            = coder_agent.main.id
-  workdir             = "/home/coder/projects"
-  order               = 999
-  ai_prompt           = data.coder_task.me.prompt  # Use task prompt, not parameter
-  system_prompt       = data.coder_parameter.system_prompt.value
+  agent_id      = coder_agent.main.id
+  workdir       = "/home/coder/projects"
+  order         = 999
+  ai_prompt     = data.coder_parameter.unified_ai_prompt.value  # Use unified prompt
+  system_prompt = data.coder_parameter.system_prompt.value
   model               = "sonnet"
   permission_mode     = "bypassPermissions"
   post_install_script = ""  # Empty - we'll use a separate script for MCP setup
