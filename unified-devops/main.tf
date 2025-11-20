@@ -1283,17 +1283,21 @@ resource "coder_script" "vibe_kanban" {
 # This conflicts with gemini's coder_ai_task. Only ONE module with agentapi v1.x can be enabled.
 # Waiting for module updates to agentapi v2.x before re-enabling.
 
-# Google Gemini CLI
-# Always create module so app appears in panel (module handles empty API key gracefully)
-module "gemini" {
-  count            = data.coder_workspace.me.start_count
-  source           = "registry.coder.com/coder-labs/gemini/coder"
-  version          = "1.0.0"
-  agent_id         = coder_agent.main.id
-  gemini_api_key   = data.coder_parameter.gemini_api_key.value
-  folder           = "/home/coder/projects"
-  install_agentapi = false  # Try to disable agentapi (may not work with v1.0.0)
-}
+# NOTE: Gemini module DISABLED
+# Gemini v1.0.0 uses agentapi v1.0.0 which creates deprecated coder_ai_task
+# The install_agentapi parameter doesn't work with agentapi v1.0.0
+# This conflicts with Claude Code's coder_ai_task
+# Waiting for gemini module update to agentapi v2.x
+
+# module "gemini" {
+#   count            = data.coder_workspace.me.start_count
+#   source           = "registry.coder.com/coder-labs/gemini/coder"
+#   version          = "1.0.0"
+#   agent_id         = coder_agent.main.id
+#   gemini_api_key   = data.coder_parameter.gemini_api_key.value
+#   folder           = "/home/coder/projects"
+#   install_agentapi = false
+# }
 
 # Goose AI Agent
 # Both modules write to /tmp/install.sh simultaneously causing "Text file busy" error
