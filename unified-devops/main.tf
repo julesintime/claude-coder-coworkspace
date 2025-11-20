@@ -1048,7 +1048,7 @@ resource "coder_script" "claude_code_ui" {
         exit 1
       fi
       echo "Waiting for PM2... ($i/60)"
-      sleep 2
+      sleep 10
     done
 
     # Install Claude Code UI with retry logic for network issues
@@ -1125,7 +1125,7 @@ resource "coder_script" "vibe_kanban" {
         exit 1
       fi
       echo "Waiting for PM2... ($i/60)"
-      sleep 2
+      sleep 10
     done
 
     # Create data directory for persistence
@@ -1135,14 +1135,22 @@ resource "coder_script" "vibe_kanban" {
     # Stop existing instance if running
     pm2 delete vibe-kanban 2>/dev/null || true
 
-    # Start Vibe Kanban with PM2 using npx
-    # Use --interpreter bash to ensure proper environment variable handling
+    # Create a start script for PM2 to execute
+    echo "🚀 Creating Vibe Kanban start script..."
+    cat > /home/coder/.vibe-kanban/start.sh << 'SCRIPT'
+#!/bin/bash
+export BACKEND_PORT=${VIBE_PORT}
+export HOST=0.0.0.0
+exec npx -y vibe-kanban
+SCRIPT
+    chmod +x /home/coder/.vibe-kanban/start.sh
+
+    # Start with PM2
     echo "🚀 Starting Vibe Kanban on port ${data.coder_parameter.vibe_kanban_port.value}..."
-    pm2 start \
+    VIBE_PORT=${data.coder_parameter.vibe_kanban_port.value} \
+    pm2 start /home/coder/.vibe-kanban/start.sh \
       --name vibe-kanban \
-      --interpreter bash \
-      --cwd /home/coder/.vibe-kanban \
-      -- -c "BACKEND_PORT=${data.coder_parameter.vibe_kanban_port.value} HOST=0.0.0.0 npx -y vibe-kanban"
+      --interpreter bash
 
     # Wait a moment for PM2 to register the process
     sleep 2
