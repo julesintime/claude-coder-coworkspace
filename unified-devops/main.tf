@@ -1079,9 +1079,8 @@ module "claude-code" {
   claude_code_oauth_token = local.use_oauth_token ? data.coder_parameter.claude_oauth_token.value : ""
 }
 
-# NOTE: Codex/Copilot/Gemini modules use agentapi v1.2.0 which ALWAYS creates coder_ai_task
-# We cannot prevent this, so we use codex's coder_ai_task for Coder Tasks integration
-# Other modules (copilot, gemini) also create their own - Coder will show error
+# NOTE: Gemini module uses agentapi v1.0.0 which ALWAYS creates coder_ai_task
+# We use gemini's coder_ai_task for Coder Tasks integration
 
 # MCP Server Configuration Script
 # Runs AFTER Claude Code module installs the CLI
@@ -1272,23 +1271,22 @@ resource "coder_script" "vibe_kanban" {
 # AI TOOL MODULES
 # ========================================
 
-# OpenAI Codex CLI
-# Always create module so app appears in panel (module handles empty API key gracefully)
-module "codex" {
-  count          = data.coder_workspace.me.start_count
-  source         = "registry.coder.com/coder-labs/codex/coder"
-  version        = "2.1.0"
-  agent_id       = coder_agent.main.id
-  openai_api_key = data.coder_parameter.openai_api_key.value
-  folder         = "/home/coder/projects"
-  ai_prompt      = data.coder_parameter.unified_ai_prompt.value
-  # This module uses agentapi v1.2.0 which ALWAYS creates coder_ai_task (for Coder Tasks)
-}
-
-# NOTE: Copilot and Gemini modules DISABLED
+# NOTE: Codex and Copilot modules DISABLED
 # Both use agentapi v1.2.0 which ALWAYS creates coder_ai_task regardless of install_agentapi parameter
-# This conflicts with codex's coder_ai_task. Only ONE module with agentapi v1.x can be enabled.
+# This conflicts with gemini's coder_ai_task. Only ONE module with agentapi v1.x can be enabled.
 # Waiting for module updates to agentapi v2.x before re-enabling.
+
+# Google Gemini CLI
+# Always create module so app appears in panel (module handles empty API key gracefully)
+module "gemini" {
+  count          = data.coder_workspace.me.start_count
+  source         = "registry.coder.com/coder-labs/gemini/coder"
+  version        = "1.0.0"
+  agent_id       = coder_agent.main.id
+  gemini_api_key = data.coder_parameter.gemini_api_key.value
+  folder         = "/home/coder/projects"
+  # This module uses agentapi v1.0.0 which ALWAYS creates coder_ai_task (for Coder Tasks)
+}
 
 # Goose AI Agent
 # Both modules write to /tmp/install.sh simultaneously causing "Text file busy" error
