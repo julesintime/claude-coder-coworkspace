@@ -699,11 +699,8 @@ resource "coder_agent" "main" {
 
   # Environment variables for AI tools and authentication
   # Note: Git configuration is handled by the personalize module
+  # Note: Claude env vars (CLAUDE_API_KEY, ANTHROPIC_BASE_URL, etc) are managed by claude-code module
   env = merge(
-    # Claude API endpoint
-    length(data.coder_parameter.claude_api_endpoint.value) > 0 ? {
-      ANTHROPIC_BASE_URL = data.coder_parameter.claude_api_endpoint.value
-    } : {},
     # Gemini API key
     local.has_gemini_key ? {
       GOOGLE_AI_API_KEY = data.coder_parameter.gemini_api_key.value
@@ -712,6 +709,11 @@ resource "coder_agent" "main" {
     local.has_github_token ? {
       GITHUB_TOKEN = local.github_token
       GH_TOKEN     = local.github_token
+    } : {},
+    # Gitea configuration
+    local.has_gitea_config ? {
+      GITEA_URL   = data.coder_parameter.gitea_url.value
+      GITEA_TOKEN = data.coder_parameter.gitea_token.value
     } : {}
   )
 
@@ -784,67 +786,12 @@ resource "coder_agent" "main" {
 }
 
 # ========================================
-# ENVIRONMENT VARIABLES
-# ========================================
-
-# Claude API key
-resource "coder_env" "claude_api_key" {
-  count    = local.use_api_key ? 1 : 0
-  agent_id = coder_agent.main.id
-  name     = "CLAUDE_API_KEY"
-  value    = data.coder_parameter.claude_api_key.value
-}
-
-# Claude OAuth token
-resource "coder_env" "claude_oauth_token" {
-  count    = local.use_oauth_token ? 1 : 0
-  agent_id = coder_agent.main.id
-  name     = "CLAUDE_CODE_OAUTH_TOKEN"
-  value    = data.coder_parameter.claude_oauth_token.value
-}
-
-# Claude system prompt
-resource "coder_env" "claude_system_prompt" {
-  agent_id = coder_agent.main.id
-  name     = "CLAUDE_CODE_SYSTEM_PROMPT"
-  value    = data.coder_parameter.system_prompt.value
-}
-
-# Gitea configuration
-resource "coder_env" "gitea_url" {
-  count    = local.has_gitea_config ? 1 : 0
-  agent_id = coder_agent.main.id
-  name     = "GITEA_URL"
-  value    = data.coder_parameter.gitea_url.value
-}
-
-resource "coder_env" "gitea_token" {
-  count    = local.has_gitea_config ? 1 : 0
-  agent_id = coder_agent.main.id
-  name     = "GITEA_TOKEN"
-  value    = data.coder_parameter.gitea_token.value
-}
-
-# ========================================
-# CRITICAL DEPENDENCIES
-# ========================================
-
-# NOTE: System packages (kubectl, gh, tea, PM2, TypeScript) are now installed
-# in the coder_agent.startup_script above. This ensures:
-# - Sequential execution (no apt lock conflicts)
-# - Single apt-get update (faster, more efficient)
-# - All dependencies ready before workspace login
-# - Simpler architecture (no separate blocking scripts)
-
-# ========================================
 # AI MODULES
 # ========================================
+# NOTE: All environment variables are managed either by:
+# 1. coder_agent.main.env (Gemini, GitHub, Gitea)
+# 2. claude-code module (Claude API key, OAuth token, system prompt, API endpoint)
 
-# Claude Code module (latest version)
-# CHANGED: Always run, regardless of auth status - Claude Code works without auth
-# NOTE: The module currently executes "claude mcp add" CLI commands in addition to
-# configuring MCP via JSON. This is redundant but harmless - both methods work.
-# Future module versions may remove the CLI commands when JSON config is provided.
 module "claude-code" {
   count   = data.coder_workspace.me.start_count # ALWAYS install Claude Code
   source  = "registry.coder.com/coder/claude-code/coder"
@@ -859,12 +806,12 @@ module "claude-code" {
   permission_mode              = "bypassPermissions"
   post_install_script          = ""
   dangerously_skip_permissions = "true"
-  # Authentication (optional - Claude Code works without it)
+
+  # Authentication (module manages env vars internally)
   claude_api_key          = local.use_api_key ? data.coder_parameter.claude_api_key.value : ""
   claude_code_oauth_token = local.use_oauth_token ? data.coder_parameter.claude_oauth_token.value : ""
 
   # MCP Server Configuration (JSON format)
-  # These servers will be configured in ~/.claude.json automatically
   mcp = jsonencode({
     mcpServers = {
       context7 = {
@@ -881,10 +828,9 @@ module "claude-code" {
   })
 }
 
-# Set custom Anthropic API endpoint if provided (via environment variable)
-resource "coder_env" "claude_api_endpoint" {
-  count = data.coder_parameter.claude_api_endpoint.value != "" ? 1 : 0
-
+# Custom Anthropic API endpoint (if specified)
+resource "coder_env" "anthropic_base_url" {
+  count    = data.coder_parameter.claude_api_endpoint.value != "" ? 1 : 0
   agent_id = coder_agent.main.id
   name     = "ANTHROPIC_BASE_URL"
   value    = data.coder_parameter.claude_api_endpoint.value
@@ -892,19 +838,9 @@ resource "coder_env" "claude_api_endpoint" {
 
 # Coder Tasks Integration - use Claude Code as the task interface
 resource "coder_ai_task" "main" {
-  count = data.coder_workspace.me.start_count
-
+  count  = data.coder_workspace.me.start_count
   app_id = module.claude-code[0].task_app_id
 }
-
-# NOTE: MCP servers are now configured inline via the claude-code module's
-# mcp parameter (lines 1023-1036). No separate configuration script needed.
-# The module handles MCP setup automatically when Claude CLI is installed.
-
-# NOTE: PM2 and UI tools (Claude Code UI, Vibe Kanban) are now installed
-# in the coder_agent.startup_script as non-blocking background processes.
-# This improves workspace startup time and allows users to start working immediately.
-# Check /tmp/ui-tools-setup.log for installation progress.
 
 # ========================================
 # AI TOOL MODULES
