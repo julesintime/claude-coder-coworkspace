@@ -1168,6 +1168,26 @@ module "codex" {
   folder         = "/home/coder/projects"
 }
 
+# GitHub Copilot CLI
+module "copilot" {
+  count        = data.coder_parameter.github_token.value != "" ? data.coder_workspace.me.start_count : 0
+  source       = "registry.coder.com/coder-labs/copilot/coder"
+  version      = "0.2.2"
+  agent_id     = coder_agent.main.id
+  github_token = data.coder_parameter.github_token.value
+  workdir      = "/home/coder/projects"
+}
+
+# Google Gemini CLI
+module "gemini" {
+  count          = data.coder_parameter.gemini_api_key.value != "" ? data.coder_workspace.me.start_count : 0
+  source         = "registry.coder.com/coder-labs/gemini/coder"
+  version        = "1.0.0"
+  agent_id       = coder_agent.main.id
+  gemini_api_key = data.coder_parameter.gemini_api_key.value
+  folder         = "/home/coder/projects"
+}
+
 # Goose AI Agent
 # Both modules write to /tmp/install.sh simultaneously causing "Text file busy" error
 # Using manual installation script below instead
