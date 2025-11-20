@@ -1322,7 +1322,7 @@ module "goose" {
   source           = "registry.coder.com/coder/goose/coder"
   version          = ">= 3.0"
   agent_id         = coder_agent.main.id
-  workdir          = "/home/coder/projects"
+  folder           = "/home/coder/projects"
   install_goose    = true
   goose_provider   = "anthropic"
   goose_model      = "claude-3-5-sonnet-20241022"
