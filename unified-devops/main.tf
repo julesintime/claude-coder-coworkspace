@@ -127,7 +127,7 @@ data "coder_parameter" "preset" {
 
   option {
     name        = "mega"
-    description = "Mega: 8 CPU, 32GB RAM, 200GB disk"
+    description = "Mega: 16 CPU, 32GB RAM, 200GB disk"
     value       = "mega"
   }
 }
@@ -812,20 +812,24 @@ module "claude-code" {
   claude_code_oauth_token = local.use_oauth_token ? data.coder_parameter.claude_oauth_token.value : ""
 
   # MCP Server Configuration (JSON format)
-  mcp = jsonencode({
-    mcpServers = {
-      context7 = {
-        url = "https://mcp.context7.com/mcp"
-      }
-      sequential-thinking = {
-        command = "npx"
-        args    = ["-y", "@modelcontextprotocol/server-sequential-thinking"]
-      }
-      deepwiki = {
-        url = "https://mcp.deepwiki.com/mcp"
-      }
+  mcp = <<-EOF
+  {
+    "mcpServers": {
+      "sequential-thinking": {
+        "command": "npx"
+        "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+      },
+      "context7": {
+        "command": "npx"
+        "args": ["-y", "@upstash/context7-mcp"]
+      },
+      "deepwiki": {
+        "url": "https://mcp.deepwiki.com/mcp"
+      },
     }
-  })
+  }
+  EOF
+
 }
 
 # Custom Anthropic API endpoint (if specified)
@@ -843,27 +847,6 @@ resource "coder_ai_task" "main" {
 }
 
 # ========================================
-# AI TOOL MODULES
-# ========================================
-
-# NOTE: Codex and Copilot modules DISABLED
-# Both use agentapi v1.2.0 which ALWAYS creates coder_ai_task regardless of install_agentapi parameter
-# This conflicts with gemini's coder_ai_task. Only ONE module with agentapi v1.x can be enabled.
-# Waiting for module updates to agentapi v2.x before re-enabling.
-
-# Gemini module - using local version with agentapi v2.0.0
-# Registry version 2.1.1 uses agentapi v1.2.0 which still creates coder_ai_task
-# Local module upgrades to agentapi v2.0.0 and exports task_app_id
-module "gemini" {
-  count            = local.has_gemini_key ? data.coder_workspace.me.start_count : 0
-  source           = "./modules/gemini"
-  agent_id         = coder_agent.main.id
-  gemini_api_key   = data.coder_parameter.gemini_api_key.value
-  folder           = "/home/coder/projects"
-  install_agentapi = false # Claude Code already installs agentapi
-}
-
-# ========================================
 # DEVELOPER TOOL MODULES
 # ========================================
 
@@ -871,7 +854,7 @@ module "gemini" {
 module "personalize" {
   count    = data.coder_workspace.me.start_count
   source   = "registry.coder.com/coder/personalize/coder"
-  version  = "1.0.8"
+  version  = "~> 1.0"
   agent_id = coder_agent.main.id
 }
 
@@ -881,7 +864,7 @@ module "personalize" {
 module "dotfiles" {
   count                = data.coder_workspace.me.start_count
   source               = "registry.coder.com/coder/dotfiles/coder"
-  version              = "1.0.14"
+  version              = "~> 1.0"
   agent_id             = coder_agent.main.id
   default_dotfiles_uri = "https://github.com/julesintime/coder-dotfiles.git"
 }
@@ -890,7 +873,7 @@ module "dotfiles" {
 module "git-clone" {
   count    = data.coder_parameter.git_clone_repo_url.value != "" ? data.coder_workspace.me.start_count : 0
   source   = "registry.coder.com/coder/git-clone/coder"
-  version  = "1.0.12"
+  version  = "~> 1.0"
   agent_id = coder_agent.main.id
   url      = data.coder_parameter.git_clone_repo_url.value
   base_dir = "/home/coder"
@@ -904,7 +887,7 @@ module "git-clone" {
 module "filebrowser" {
   count    = data.coder_parameter.enable_filebrowser.value ? data.coder_workspace.me.start_count : 0
   source   = "registry.coder.com/coder/filebrowser/coder"
-  version  = "1.0.8"
+  version  = "~> 1.0"
   agent_id = coder_agent.main.id
   folder   = "/home/coder"
 }
@@ -913,7 +896,7 @@ module "filebrowser" {
 module "kasmvnc" {
   count               = data.coder_parameter.enable_kasmvnc.value ? data.coder_workspace.me.start_count : 0
   source              = "registry.coder.com/coder/kasmvnc/coder"
-  version             = "1.2.5"
+  version             = "~> 1.2"
   agent_id            = coder_agent.main.id
   desktop_environment = "xfce"
 }
@@ -922,7 +905,7 @@ module "kasmvnc" {
 module "archive" {
   count    = data.coder_workspace.me.start_count
   source   = "registry.coder.com/coder-labs/archive/coder"
-  version  = "0.0.1"
+  version  = "~> 0.0"
   agent_id = coder_agent.main.id
 }
 
