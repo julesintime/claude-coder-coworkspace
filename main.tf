@@ -646,6 +646,14 @@ resource "coder_agent" "main" {
       rm /tmp/tea
     fi
 
+    # Infisical CLI
+    if ! command -v infisical >/dev/null 2>&1; then
+      echo "📦 Installing Infisical CLI..."
+      curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+      sudo apt-get update
+      sudo apt-get install -y infisical
+    fi
+
     # TypeScript (optional)
     if ! command -v tsc >/dev/null 2>&1; then
       if command -v npm >/dev/null 2>&1; then
@@ -828,6 +836,7 @@ module "claude-code" {
   post_install_script          = <<-EOT
     claude mcp add --transport http context7 https://mcp.context7.com/mcp
     claude mcp add --transport http deepwiki https://mcp.deepwiki.com/mcp
+    claude mcp add gemini-cli -- npx -y gemini-mcp-tool
   EOT
   dangerously_skip_permissions = "true"
 
