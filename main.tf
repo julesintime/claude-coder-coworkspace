@@ -817,7 +817,7 @@ resource "coder_agent" "main" {
 module "claude-code" {
   count   = data.coder_workspace.me.start_count # ALWAYS install Claude Code
   source  = "registry.coder.com/coder/claude-code/coder"
-  version = "~> 4.2" # Auto-update to latest 4.x version (currently 4.2.0+)
+  version = "~> 4.2" # Latest: 4.2.2 - Auto-updates within 4.2.x for bug fixes
 
   agent_id                     = coder_agent.main.id
   workdir                      = "/home/coder/projects"
@@ -826,13 +826,11 @@ module "claude-code" {
   system_prompt                = data.coder_parameter.system_prompt.value
   model                        = "sonnet"
   permission_mode              = "bypassPermissions"
-  pre_install_script           = <<-EOT
-    # Clean up empty session files that cause "No conversation found" errors
-    if [ -d "$HOME/.claude/projects" ]; then
-      find "$HOME/.claude/projects" -type f -name "*.jsonl" -size 0 -delete 2>/dev/null || true
-      echo "Cleaned up empty Claude session files"
-    fi
-  EOT
+
+  # FIX: Disable auto-resume to prevent "No conversation found" errors on restart
+  # The task session (cd32e253-ca16-4fd3-9825-d837e74ae3c2) will be created fresh on each start
+  # This prevents restart failures when session files are in summary-only state
+  continue                     = false
   post_install_script          = <<-EOT
     claude mcp add --transport http context7 https://mcp.context7.com/mcp
     claude mcp add --transport http deepwiki https://mcp.deepwiki.com/mcp
