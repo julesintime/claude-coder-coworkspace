@@ -964,7 +964,7 @@ module "code-server" {
     "window.autoDetectColorScheme" : true
     "editor.formatOnSave" : true
     "files.autoSave" : "afterDelay"
-    "terminal.integrated.defaultProfile.linux" : "tmux"
+    "terminal.integrated.defaultProfile.linux" : "zellij"
   }
 
   # Extensions - these will use the GITHUB_TOKEN environment variable for authentication
