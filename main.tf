@@ -601,8 +601,9 @@ resource "coder_agent" "main" {
 
     # Create project directories
     mkdir -p /home/coder/projects
-    mkdir -p ~/.claude/resume-logs
-    mkdir -p ~/scripts
+
+    # Create code alias for code-server CLI
+    sudo ln -sf /tmp/code-server/bin/code-server /usr/local/bin/code
 
     # ========================================
     # SYSTEM PACKAGES (Sequential - No Apt Locks!)
@@ -652,6 +653,15 @@ resource "coder_agent" "main" {
       curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
       sudo apt-get update
       sudo apt-get install -y infisical
+    fi
+
+    # Zellij terminal multiplexer
+    if ! command -v zellij >/dev/null 2>&1; then
+      echo "📦 Installing Zellij..."
+      curl -fsSL https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-unknown-linux-musl.tar.gz -o /tmp/zellij-install.tar.gz
+      tar -xzf /tmp/zellij-install.tar.gz -C /tmp
+      sudo install -m 755 /tmp/zellij /usr/local/bin/zellij
+      rm -f /tmp/zellij /tmp/zellij-install.tar.gz
     fi
 
     # TypeScript (optional)
@@ -827,10 +837,24 @@ module "claude-code" {
   model                        = "sonnet"
   permission_mode              = "bypassPermissions"
 
-  # FIX: Disable auto-resume to prevent "No conversation found" errors on restart
-  # The task session (cd32e253-ca16-4fd3-9825-d837e74ae3c2) will be created fresh on each start
-  # This prevents restart failures when session files are in summary-only state
-  continue                     = false
+  # Use default continue behavior (auto-resume existing sessions)
+  # continue = true (default)
+
+  # FIX: If the task session file exists but is empty (0 bytes), delete it
+  # This happens when Claude crashes before writing to the session (e.g., API key issue)
+  # Empty files cause --resume to fail with "No conversation found"
+  # Only targets the specific task session file, not other sessions
+  pre_install_script           = <<-EOT
+    TASK_SESSION_ID="cd32e253-ca16-4fd3-9825-d837e74ae3c2"
+    WORKDIR_NORMALIZED=$(echo "/home/coder/projects" | tr '/' '-')
+    SESSION_FILE="$HOME/.claude/projects/$WORKDIR_NORMALIZED/$TASK_SESSION_ID.jsonl"
+
+    if [ -f "$SESSION_FILE" ] && [ ! -s "$SESSION_FILE" ]; then
+      echo "Task session file exists but is empty (0 bytes) - removing to allow fresh session"
+      rm -f "$SESSION_FILE"
+    fi
+  EOT
+
   post_install_script          = <<-EOT
     claude mcp add --transport http context7 https://mcp.context7.com/mcp
     claude mcp add --transport http deepwiki https://mcp.deepwiki.com/mcp
@@ -944,12 +968,20 @@ module "code-server" {
   }
 
   # Extensions - these will use the GITHUB_TOKEN environment variable for authentication
-  # Note: GitHub extensions (copilot, copilot-chat) and C++ tools not available in code-server marketplace
+  # Note: GitHub extensions (copilot, copilot-chat) require manual installation via post_install_script
   extensions = [
     "ms-azuretools.vscode-docker",
     "johnpapa.vscode-peacock",
     "coder.coder-remote"
   ]
+
+  # Post-install script to enable GitHub Copilot extensions
+  # These extensions require the official VS Code marketplace
+  post_install_script = <<-EOT
+    export EXTENSIONS_GALLERY='{"serviceUrl": "https://marketplace.visualstudio.com/_apis/public/gallery", "itemUrl": "https://marketplace.visualstudio.com/items"}'
+    /tmp/code-server/bin/code-server --install-extension github.copilot
+    /tmp/code-server/bin/code-server --install-extension github.copilot-chat
+  EOT
 }
 
 # Cursor IDE
