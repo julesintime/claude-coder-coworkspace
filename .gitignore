@@ -2,14 +2,17 @@
 .terraform/
 *.tfstate
 *.tfstate.*
-.terraform.lock.hcl
 terraform.tfvars
 *.auto.tfvars
+
+# Allow .terraform.lock.hcl in templates (version lock is important)
+!templates/**/.terraform.lock.hcl
 
 # Coder files
 .coder/
 *.coder
-coder-dotfiles/
+
+# coder-dotfiles/ will be a git submodule (not ignored)
 
 # IDE files
 .vscode/launch.json
