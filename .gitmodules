@@ -1,0 +1,3 @@
+[submodule "coder-dotfiles"]
+	path = coder-dotfiles
+	url = https://github.com/julesintime/coder-dotfiles.git
